@@ -1,0 +1,41 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 物質量（モル数）から気体の体積を計算する関数
+def calculate_volume(n, molar_volume=22.4):
+    return molar_volume * n
+
+# 物質量（モル数）から粒子の数を計算する関数
+def calculate_particles(n, avogadro_constant=6.022e23):
+    return n * avogadro_constant
+
+# 物質量の範囲（0 mol から 5 mol）
+n_values = np.linspace(0, 5, 100)  # 0 mol から 5 mol の範囲
+
+# 各物質量に対する気体の体積と粒子の数を計算
+volumes = calculate_volume(n_values)
+particles = calculate_particles(n_values)
+
+# プロット
+plt.figure(figsize=(12, 6))
+
+# 気体の体積と物質量の関係
+plt.subplot(1, 2, 1)
+plt.plot(n_values, volumes, label="Gas Volume (L)", color='blue')
+plt.title("Gas Volume vs Molar Amount (Standard State)")
+plt.xlabel("Molar Amount (n) [mol]")
+plt.ylabel("Volume [L]")
+plt.grid(True)
+plt.legend()
+
+# 粒子数と物質量の関係
+plt.subplot(1, 2, 2)
+plt.plot(n_values, particles, label="Particle Number", color='green')
+plt.title("Particle Number vs Molar Amount")
+plt.xlabel("Molar Amount (n) [mol]")
+plt.ylabel("Particle Number [#]")
+plt.grid(True)
+plt.legend()
+
+plt.tight_layout()
+plt.show()
