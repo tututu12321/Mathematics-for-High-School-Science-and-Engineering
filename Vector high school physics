@@ -1,0 +1,40 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 速度 v と角度 θ の定義
+v = 10  # 速度の大きさ (m/s)
+theta = np.pi / 4  # 角度 θ (45度)
+
+# 速度の成分
+vx = v * np.cos(theta)
+vy = v * np.sin(theta)
+
+# 速度ベクトルと成分ベクトルをプロット
+plt.figure(figsize=(6, 6))
+
+# x 軸と y 軸の範囲設定
+plt.xlim(-12, 12)
+plt.ylim(-12, 12)
+
+# ベクトル v をプロット
+plt.quiver(0, 0, vx, vy, angles='xy', scale_units='xy', scale=1, color='blue', label='v = (vx, vy)')
+
+# 成分ベクトル vx, vy をプロット
+plt.quiver(0, 0, vx, 0, angles='xy', scale_units='xy', scale=1, color='green', label='vx')
+plt.quiver(0, 0, 0, vy, angles='xy', scale_units='xy', scale=1, color='red', label='vy')
+
+# 軸とラベル
+plt.axhline(0, color='black',linewidth=1)
+plt.axvline(0, color='black',linewidth=1)
+plt.xlabel('x')
+plt.ylabel('y')
+
+# プロットのタイトルと表示
+plt.title('Velocity Vector and Its Components')
+plt.legend()
+plt.grid(True)
+plt.gca().set_aspect('equal', adjustable='box')
+plt.show()
+
+# 速度の大きさと成分を表示
+v, vx, vy, np.degrees(theta)  # 角度は度数法に変換して表示
