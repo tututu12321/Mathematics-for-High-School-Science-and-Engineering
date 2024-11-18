@@ -1,0 +1,31 @@
+import numpy as np
+import math
+
+# 定数の設定
+R = 8.314  # ガス定数 (J/mol·K)
+T = 298  # 温度 (K)、室温を想定
+
+# ΔG*, ΔH*, ΔS* (遷移状態でのエネルギー、エンタルピー、エントロピーの変化)
+delta_H_star = 50  # ΔH* (J/mol)
+delta_S_star = 100  # ΔS* (J/mol·K)
+delta_G_star = delta_H_star - T * delta_S_star  # ΔG* (J/mol)
+
+# k* (基準状態の速度定数)
+k_star = 1e13  # 例: 基準速度定数（仮定値）
+
+# 遷移状態での平衡定数 K*
+K_star = np.exp(-delta_G_star / (R * T))
+
+# 反応速度定数 k の計算
+k = k_star * np.exp(delta_S_star / R) * np.exp(-delta_H_star / (R * T))
+
+# 平衡定数 Keq の計算 (自由エネルギー変化 ΔG° を使って計算)
+delta_G_o = 40  # ΔG° (J/mol)、仮定値
+Keq = np.exp(-delta_G_o / (R * T))
+
+# 結果の表示
+print(f"ΔG* = {delta_G_star} J/mol")
+print(f"K* = {K_star}")
+print(f"Reaction rate constant k = {k} mol/s")
+print(f"Equilibrium constant Keq = {Keq}")
+
