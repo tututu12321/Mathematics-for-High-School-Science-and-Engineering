@@ -1,0 +1,36 @@
+# 単位の接頭語の辞書データ
+prefixes = {
+    "ヨタ": {"symbol": "Y", "value": 10**24},
+    "ゼタ": {"symbol": "Z", "value": 10**21},
+    "エクサ": {"symbol": "E", "value": 10**18},
+    "ペタ": {"symbol": "P", "value": 10**15},
+    "テラ": {"symbol": "T", "value": 10**12},
+    "ギガ": {"symbol": "G", "value": 10**9},
+    "メガ": {"symbol": "M", "value": 10**6},
+    "キロ": {"symbol": "k", "value": 10**3},
+    "ヘクト": {"symbol": "h", "value": 10**2},
+    "デカ": {"symbol": "da", "value": 10**1},
+    "デシ": {"symbol": "d", "value": 10**-1},
+    "センチ": {"symbol": "c", "value": 10**-2},
+    "ミリ": {"symbol": "m", "value": 10**-3},
+    "マイクロ": {"symbol": "μ", "value": 10**-6},
+    "ナノ": {"symbol": "n", "value": 10**-9},
+    "ピコ": {"symbol": "p", "value": 10**-12},
+    "フェムト": {"symbol": "f", "value": 10**-15},
+    "アト": {"symbol": "a", "value": 10**-18},
+    "ゼプト": {"symbol": "z", "value": 10**-21},
+    "ヨクト": {"symbol": "y", "value": 10**-24},
+}
+
+# 接頭語を検索する関数
+def get_prefix_info(prefix_name):
+    if prefix_name in prefixes:
+        symbol = prefixes[prefix_name]["symbol"]
+        value = prefixes[prefix_name]["value"]
+        return f"接頭語: {prefix_name}, 記号: {symbol}, 値: {value:.0e}"
+    else:
+        return "指定された接頭語は見つかりません。"
+
+# テスト用の入力
+user_input = input("接頭語を入力してください（例: ギガ, ミリ, ヨタ）: ")
+print(get_prefix_info(user_input))
