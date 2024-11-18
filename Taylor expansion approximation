@@ -1,0 +1,61 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 初期条件
+x0 = 0   # 初期位置 (m)
+v0 = 0   # 初期速度 (m/s)
+t0 = 0   # 初期時間 (s)
+t_values = np.linspace(0, 10, 100)  # 時間の範囲
+
+# 加速度関数 (加速度が時間に依存する場合)
+def acceleration(t):
+    return 9.8 * (1 - 0.1 * t)  # 例: 重力加速度が時間とともに減少するケース
+
+# 位置と速度を計算する関数
+def position_velocity(t_values, t0=0, x0=0, v0=0):
+    x_exact = x0 + v0 * t_values + 0.5 * acceleration(t0) * t_values**2  # 加速度が一定の場合
+    v_exact = v0 + acceleration(t0) * t_values  # 速度の計算
+
+    # テイラー展開（加速度が時間に依存して変化する場合）
+    # 1次テイラー展開
+    a_0 = acceleration(t0)
+    v_1st_order = v0 + a_0 * t_values
+    x_1st_order = x0 + v0 * t_values + 0.5 * a_0 * t_values**2
+
+    # 2次テイラー展開
+    da_dt = -0.1  # 加速度の時間微分（例）
+    v_2nd_order = v0 + a_0 * t_values + 0.5 * da_dt * t_values**2
+    x_2nd_order = x0 + v0 * t_values + 0.5 * a_0 * t_values**2 + (1/6) * da_dt * t_values**3
+
+    return x_exact, v_exact, x_1st_order, v_1st_order, x_2nd_order, v_2nd_order
+
+# 位置と速度を計算
+x_exact, v_exact, x_1st_order, v_1st_order, x_2nd_order, v_2nd_order = position_velocity(t_values)
+
+# プロット
+plt.figure(figsize=(12, 6))
+
+# 位置のプロット
+plt.subplot(2, 1, 1)
+plt.plot(t_values, x_exact, label="Exact Position", color='blue')
+plt.plot(t_values, x_1st_order, label="1st Order Taylor Approximation", linestyle='dashed', color='green')
+plt.plot(t_values, x_2nd_order, label="2nd Order Taylor Approximation", linestyle='dotted', color='red')
+plt.title("Position vs Time (with Taylor Expansion)")
+plt.xlabel("Time (s)")
+plt.ylabel("Position (m)")
+plt.grid(True)
+plt.legend()
+
+# 速度のプロット
+plt.subplot(2, 1, 2)
+plt.plot(t_values, v_exact, label="Exact Velocity", color='blue')
+plt.plot(t_values, v_1st_order, label="1st Order Taylor Approximation", linestyle='dashed', color='green')
+plt.plot(t_values, v_2nd_order, label="2nd Order Taylor Approximation", linestyle='dotted', color='red')
+plt.title("Velocity vs Time (with Taylor Expansion)")
+plt.xlabel("Time (s)")
+plt.ylabel("Velocity (m/s)")
+plt.grid(True)
+plt.legend()
+
+plt.tight_layout()
+plt.show()
