@@ -1,0 +1,106 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define the angle range (in radians)
+theta = np.linspace(0, 2 * np.pi, 500)
+
+# Double-angle formulas
+sin_2alpha = 2 * np.sin(theta) * np.cos(theta)  # sin(2α) = 2sin(α)cos(α)
+cos_2alpha_1 = np.cos(theta)**2 - np.sin(theta)**2  # cos(2α) = cos²(α) - sin²(α)
+cos_2alpha_2 = 1 - 2 * np.sin(theta)**2  # cos(2α) = 1 - 2sin²(α)
+cos_2alpha_3 = 2 * np.cos(theta)**2 - 1  # cos(2α) = 2cos²(α) - 1
+
+# Sum and difference formulas
+sin_alpha_plus_beta = np.sin(theta + np.pi / 4)  # sin(α + β)
+sin_alpha_minus_beta = np.sin(theta - np.pi / 4)  # sin(α - β)
+cos_alpha_plus_beta = np.cos(theta + np.pi / 4)  # cos(α + β)
+cos_alpha_minus_beta = np.cos(theta - np.pi / 4)  # cos(α - β)
+
+# Trigonometric synthesis
+a = 3  # Coefficient a
+b = 4  # Coefficient b
+alpha = np.arctan2(b, a)  # Synthesis angle α
+sum_function = np.sqrt(a**2 + b**2) * np.sin(theta + alpha)  # Composite function
+
+# Visualization
+plt.figure(figsize=(14, 18))
+
+# 2倍角の公式: sin(2α)
+plt.subplot(4, 2, 1)
+plt.plot(theta, sin_2alpha, label="sin(2α) = 2sin(α)cos(α)")
+plt.title("Double Angle Formula: sin(2α)")
+plt.xlabel("θ (radians)")
+plt.ylabel("Amplitude")
+plt.grid()
+plt.legend()
+
+# 2倍角の公式: cos(2α)
+plt.subplot(4, 2, 2)
+plt.plot(theta, cos_2alpha_1, label="cos(2α) = cos²(α) - sin²(α)")
+plt.plot(theta, cos_2alpha_2, label="cos(2α) = 1 - 2sin²(α)")
+plt.plot(theta, cos_2alpha_3, label="cos(2α) = 2cos²(α) - 1")
+plt.title("Double Angle Formula: cos(2α)")
+plt.xlabel("θ (radians)")
+plt.ylabel("Amplitude")
+plt.grid()
+plt.legend()
+
+# 和と差の公式: sin(α ± β)
+plt.subplot(4, 2, 3)
+plt.plot(theta, sin_alpha_plus_beta, label="sin(α + β)")
+plt.plot(theta, sin_alpha_minus_beta, label="sin(α - β)")
+plt.title("Sum and Difference Formula: sin(α ± β)")
+plt.xlabel("θ (radians)")
+plt.ylabel("Amplitude")
+plt.grid()
+plt.legend()
+
+# 和と差の公式: cos(α ± β)
+plt.subplot(4, 2, 4)
+plt.plot(theta, cos_alpha_plus_beta, label="cos(α + β)")
+plt.plot(theta, cos_alpha_minus_beta, label="cos(α - β)")
+plt.title("Sum and Difference Formula: cos(α ± β)")
+plt.xlabel("θ (radians)")
+plt.ylabel("Amplitude")
+plt.grid()
+plt.legend()
+
+# 合成された三角関数
+plt.subplot(4, 2, 5)
+plt.plot(theta, sum_function, label="a sin(θ) + b cos(θ) = √(a² + b²) sin(θ + α)")
+plt.title("Trigonometric Synthesis")
+plt.xlabel("θ (radians)")
+plt.ylabel("Amplitude")
+plt.grid()
+plt.legend()
+
+# 元の三角関数: sin(θ)
+plt.subplot(4, 2, 6)
+plt.plot(theta, np.sin(theta), label="sin(θ)")
+plt.title("Original Trigonometric Function: sin(θ)")
+plt.xlabel("θ (radians)")
+plt.ylabel("Amplitude")
+plt.grid()
+plt.legend()
+
+# 元の三角関数: cos(θ)
+plt.subplot(4, 2, 7)
+plt.plot(theta, np.cos(theta), label="cos(θ)")
+plt.title("Original Trigonometric Function: cos(θ)")
+plt.xlabel("θ (radians)")
+plt.ylabel("Amplitude")
+plt.grid()
+plt.legend()
+
+# 元の三角関数: tan(θ)
+plt.subplot(4, 2, 8)
+plt.plot(theta, np.tan(theta), label="tan(θ)")
+plt.title("Original Trigonometric Function: tan(θ)")
+plt.xlabel("θ (radians)")
+plt.ylabel("Amplitude")
+plt.ylim(-10, 10)  # To avoid divergence in plot
+plt.grid()
+plt.legend()
+
+plt.tight_layout()
+plt.show()
