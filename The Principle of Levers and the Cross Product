@@ -1,0 +1,38 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# Define position vector (r) and force vector (F)
+r = np.array([2, 3, 0])  # Position vector (m)
+F = np.array([0, 0, 5])  # Force vector (N)
+
+# Calculate the cross product (torque vector τ = r × F)
+torque = np.cross(r, F)
+
+print(f"Torque vector: {torque}")
+
+# Set up a 3D plot
+fig = plt.figure(figsize=(8, 6))
+ax = fig.add_subplot(111, projection='3d')
+
+# Plot position vector, force vector, and torque vector
+ax.quiver(0, 0, 0, r[0], r[1], r[2], color='r', label='Position Vector (r)', arrow_length_ratio=0.1)
+ax.quiver(0, 0, 0, F[0], F[1], F[2], color='b', label='Force Vector (F)', arrow_length_ratio=0.1)
+ax.quiver(0, 0, 0, torque[0], torque[1], torque[2], color='g', label='Torque Vector (τ)', arrow_length_ratio=0.1)
+
+# Set plot limits
+ax.set_xlim([0, 3])
+ax.set_ylim([0, 3])
+ax.set_zlim([0, 6])
+
+# Labels and title
+ax.set_xlabel('X axis')
+ax.set_ylabel('Y axis')
+ax.set_zlabel('Z axis')
+ax.set_title("Lever Principle: Torque Vector")
+
+# Add legend
+ax.legend()
+
+# Show the plot
+plt.show()
