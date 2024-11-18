@@ -1,0 +1,86 @@
+import numpy as np
+
+# ニュートン法 (Newton's Method)
+def newton_method(func, d_func, x0, tol=1e-6, max_iter=100):
+    x = x0
+    for i in range(max_iter):
+        fx = func(x)
+        dfx = d_func(x)
+        if dfx == 0:
+            raise ValueError("Derivative is zero; Newton's method fails.")
+        x_new = x - fx / dfx
+        if abs(x_new - x) < tol:
+            print(f"Newton's Method converged in {i + 1} iterations: x = {x_new}")
+            return x_new
+        x = x_new
+    raise ValueError("Newton's Method did not converge.")
+
+# 二分法 (Bisection Method)
+def bisection_method(func, a, b, tol=1e-6, max_iter=100):
+    if func(a) * func(b) >= 0:
+        raise ValueError("Function does not change sign on the interval.")
+    for i in range(max_iter):
+        c = (a + b) / 2
+        if abs(func(c)) < tol or (b - a) / 2 < tol:
+            print(f"Bisection Method converged in {i + 1} iterations: x = {c}")
+            return c
+        if func(a) * func(c) < 0:
+            b = c
+        else:
+            a = c
+    raise ValueError("Bisection Method did not converge.")
+
+# 逐次近似法 (Fixed-Point Iteration)
+def fixed_point_iteration(g, x0, tol=1e-6, max_iter=100):
+    x = x0
+    for i in range(max_iter):
+        x_new = g(x)
+        if abs(x_new - x) < tol:
+            print(f"Fixed-Point Iteration converged in {i + 1} iterations: x = {x_new}")
+            return x_new
+        x = x_new
+    raise ValueError("Fixed-Point Iteration did not converge.")
+
+# テイラー展開による近似 (Taylor Series Approximation)
+def taylor_series_sqrt(x, terms=3):
+    """Approximate sqrt(1 + x) using Taylor series around x=0."""
+    result = 1  # First term of the series
+    term = x / 2
+    factorial = 1
+    for n in range(1, terms):
+        result += term
+        factorial *= (2 * n) * (2 * n - 1)
+        term *= -x / factorial
+    return result
+
+# 試行錯誤法 (Trial and Error)
+def trial_and_error_sqrt(a, tolerance=1e-6):
+    x = a / 2  # Initial guess
+    while abs(x * x - a) > tolerance:
+        x = (x + a / x) / 2
+    print(f"Trial and Error method approximated sqrt({a}): x = {x}")
+    return x
+
+# 関数例
+if __name__ == "__main__":
+    # 方程式 f(x) = x^2 - a = 0 を解く例 (a = 50)
+    a = 50
+    func = lambda x: x**2 - a
+    d_func = lambda x: 2 * x
+    g = lambda x: a / x
+
+    print("=== Newton's Method ===")
+    newton_method(func, d_func, x0=7)
+
+    print("\n=== Bisection Method ===")
+    bisection_method(func, a=7, b=8)
+
+    print("\n=== Fixed-Point Iteration ===")
+    fixed_point_iteration(g, x0=7)
+
+    print("\n=== Taylor Series Approximation ===")
+    approx = taylor_series_sqrt(0.1, terms=3)  # sqrt(1 + 0.1)
+    print(f"Taylor Series Approximation of sqrt(1.1): {approx}")
+
+    print("\n=== Trial and Error Method ===")
+    trial_and_error_sqrt(a)
