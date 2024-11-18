@@ -1,0 +1,72 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import CubicSpline, BarycentricInterpolator, interp1d
+from scipy.optimize import curve_fit
+from scipy.interpolate import Rbf
+
+# Example data points
+x_data = np.array([1, 2, 3, 4, 5])
+y_data = np.array([2, 4, 6, 8, 10])
+
+# 1. Linear Interpolation
+linear_interp = interp1d(x_data, y_data, kind='linear', bounds_error=False)
+
+# 2. Lagrange Interpolation (using BarycentricInterpolator as an example)
+lagrange_interp = BarycentricInterpolator(x_data, y_data)
+
+# 3. Spline Interpolation (Cubic Spline)
+spline_interp = CubicSpline(x_data, y_data)
+
+# 4. Newton Interpolation (Using Polynomial Fit)
+def newton_interp(x, *coeff):
+    result = 0
+    for i, c in enumerate(coeff):
+        result += c * (x ** i)
+    return result
+
+# Fit a polynomial of degree 4 (or as needed) to the data
+params, _ = curve_fit(newton_interp, x_data, y_data, p0=np.ones(len(x_data)))
+newton_interp_func = lambda x: newton_interp(x, *params)
+
+# 5. B-Spline Interpolation (using Cubic Spline again but in a specific way for B-Splines)
+b_spline_interp = CubicSpline(x_data, y_data, bc_type='clamped')
+
+# 6. Radial Basis Function (RBF) Interpolation
+rbf_interp = Rbf(x_data, y_data, function='multiquadric')
+
+# 7. Piecewise Linear Interpolation
+piecewise_linear_interp = interp1d(x_data, y_data, kind='linear')
+
+# 8. Least Squares Fit (polynomial fit)
+def least_squares_fit(x, degree):
+    coeff = np.polyfit(x_data, y_data, degree)
+    return np.polyval(coeff, x)
+
+# Create x values for plotting within the bounds of x_data
+x_values = np.linspace(min(x_data), max(x_data), 100)
+
+# Plot the interpolation results
+plt.figure(figsize=(10, 8))
+
+# Plot each interpolation method
+plt.plot(x_values, linear_interp(x_values), label="Linear Interpolation", linestyle='-', color='blue')
+plt.plot(x_values, lagrange_interp(x_values), label="Lagrange Interpolation", linestyle='--', color='green')
+plt.plot(x_values, spline_interp(x_values), label="Spline Interpolation", linestyle='-.', color='red')
+plt.plot(x_values, newton_interp_func(x_values), label="Newton Interpolation", linestyle=':', color='purple')
+plt.plot(x_values, b_spline_interp(x_values), label="B-Spline Interpolation", linestyle='-', color='orange')
+plt.plot(x_values, rbf_interp(x_values), label="RBF Interpolation", linestyle='--', color='brown')
+plt.plot(x_values, piecewise_linear_interp(x_values), label="Piecewise Linear Interpolation", linestyle='-', color='pink')
+
+# Least Squares Fit (polynomial)
+plt.plot(x_values, least_squares_fit(x_values, 4), label="Least Squares Fit", linestyle='-', color='cyan')
+
+# Plot the original data points
+plt.scatter(x_data, y_data, color='black', zorder=5, label="Original Data")
+
+# Add labels and legend
+plt.title("Comparison of Different Interpolation Methods")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.legend(loc='best')
+plt.grid(True)
+plt.show()
