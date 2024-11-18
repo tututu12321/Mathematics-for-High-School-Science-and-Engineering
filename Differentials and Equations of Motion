@@ -1,0 +1,42 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 運動方程式のパラメータ
+m = 1.0  # 質量 (kg)
+F = 10.0  # 力 (N)
+t_max = 10.0  # シミュレーション時間 (s)
+dt = 0.01  # 時間刻み (s)
+
+# 初期条件
+x0 = 0.0  # 初期位置 (m)
+v0 = 0.0  # 初速度 (m/s)
+
+# 時間配列を作成
+time = np.arange(0, t_max, dt)
+
+# 配列を準備
+x = np.zeros_like(time)  # 位置
+v = np.zeros_like(time)  # 速度
+a = np.zeros_like(time)  # 加速度
+
+# 初期条件の設定
+x[0] = x0
+v[0] = v0
+
+# シミュレーション
+for i in range(1, len(time)):
+    a[i] = F / m  # 加速度 = 力 / 質量
+    v[i] = v[i-1] + a[i] * dt  # 速度 = 前の速度 + 加速度 * 時間刻み
+    x[i] = x[i-1] + v[i] * dt  # 位置 = 前の位置 + 速度 * 時間刻み
+
+# 結果をプロット
+plt.figure(figsize=(10, 6))
+plt.plot(time, x, label="Position (x)")
+plt.plot(time, v, label="Velocity (v)")
+plt.plot(time, a, label="Acceleration (a)")
+plt.xlabel("Time (s)")
+plt.ylabel("Value")
+plt.title("Motion Simulation: Position, Velocity, and Acceleration")
+plt.legend()
+plt.grid()
+plt.show()
