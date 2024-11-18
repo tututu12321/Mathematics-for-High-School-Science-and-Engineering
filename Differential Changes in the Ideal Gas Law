@@ -1,0 +1,31 @@
+import numpy as np
+
+# Constants
+R = 8.314  # Ideal gas constant in J/(mol·K)
+
+# Initial conditions (example values)
+P_initial = 100_000  # Initial pressure in Pa (100 kPa)
+V_initial = 0.01     # Initial volume in m³ (10 L)
+T_initial = 300      # Initial temperature in K
+n = 1                # Number of moles
+
+# Changes in state variables (small increments)
+delta_P = 1_000       # Change in pressure in Pa (1 kPa)
+delta_V = 0.001       # Change in volume in m³ (1 L)
+delta_T = 10          # Change in temperature in K
+
+# Calculate the original PV
+PV_initial = P_initial * V_initial
+
+# Calculate the changes using the differential form
+# Δ(PV) = nR * ΔT
+delta_PV = n * R * delta_T
+
+# Verify Δ(PV) ≈ ΔP * V + P * ΔV
+delta_PV_check = delta_P * V_initial + P_initial * delta_V
+
+# Results
+print(f"Initial PV: {PV_initial:.2f} J")
+print(f"Change in PV using Δ(PV) = nR * ΔT: {delta_PV:.2f} J")
+print(f"Change in PV using ΔP·V + P·ΔV: {delta_PV_check:.2f} J")
+print(f"Consistency Check: {'Pass' if np.isclose(delta_PV, delta_PV_check, atol=1e-2) else 'Fail'}")
