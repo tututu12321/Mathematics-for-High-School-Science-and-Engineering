@@ -1,0 +1,46 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータ設定
+fs = 1000  # サンプリング周波数 (Hz)
+t = np.linspace(0, 1, fs)  # 時間ベクトル（1秒間）
+
+# 周波数設定
+f1 = 50  # 周波数1 (Hz)
+f2 = 120  # 周波数2 (Hz)
+
+# サイン波を定義
+sin_f1 = np.sin(2 * np.pi * f1 * t)  # sin(2πf1t)
+sin_f2 = np.sin(2 * np.pi * f2 * t)  # sin(2πf2t)
+
+# サイン波の加法定理による合成
+sin_sum = np.sin(2 * np.pi * f1 * t) + np.sin(2 * np.pi * f2 * t)  # 単純な加算
+sin_sum_exp = 2 * np.sin((f1 + f2) * np.pi * t) * np.cos((f1 - f2) * np.pi * t)  # 加法定理を使った合成
+
+# 二倍角の公式を使用して波形を生成
+sin_2f1 = 2 * np.sin(np.pi * f1 * t) * np.cos(np.pi * f1 * t)  # sin(2θ) = 2sin(θ)cos(θ)
+
+# プロット
+plt.figure(figsize=(12, 8))
+
+# サイン波の加法定理
+plt.subplot(2, 2, 1)
+plt.plot(t, sin_sum, label=r'$\sin(2\pi f_1 t) + \sin(2\pi f_2 t)$', color='blue')
+plt.plot(t, sin_sum_exp, label=r'$2\sin\left((f_1+f_2)\pi t\right) \cos\left((f_1-f_2)\pi t\right)$', linestyle='dashed', color='red')
+plt.title('Sum of Two Sine Waves (Using Addition Theorem)')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
+plt.legend()
+plt.grid(True)
+
+# 二倍角の公式による波形
+plt.subplot(2, 2, 2)
+plt.plot(t, sin_2f1, label=r'$\sin(2\theta) = 2\sin(\theta)\cos(\theta)$', color='green')
+plt.title('Double Angle Formula (sin(2θ) = 2sin(θ)cos(θ))')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
+plt.legend()
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
