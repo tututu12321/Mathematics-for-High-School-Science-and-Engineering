@@ -1,0 +1,50 @@
+import sympy as sp
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# Define variables and function
+x, y = sp.symbols('x y')
+z = sp.sqrt(x**2 + y**2)
+
+# Calculate partial derivatives
+dz_dx = sp.diff(z, x)
+dz_dy = sp.diff(z, y)
+
+# Display partial derivatives
+print("∂z/∂x =", dz_dx)
+print("∂z/∂y =", dz_dy)
+
+# Total differential
+dz = dz_dx * sp.Symbol('dx') + dz_dy * sp.Symbol('dy')
+print("Total differential (dz):", dz)
+
+# Evaluate at specific values
+x_val = 3.05
+y_val = 3.98
+dx_val = 0.01  # Example change in x
+dy_val = -0.02  # Example change in y
+
+# Evaluate function, partial derivatives, and total differential
+z_val = z.subs({x: x_val, y: y_val}).evalf()
+dz_dx_val = dz_dx.subs({x: x_val, y: y_val}).evalf()
+dz_dy_val = dz_dy.subs({x: x_val, y: y_val}).evalf()
+dz_approx = dz_dx_val * dx_val + dz_dy_val * dy_val
+
+print(f"z({x_val}, {y_val}) =", z_val)
+print(f"Approximation using total differential: z + dz ≈ {z_val + dz_approx}")
+
+# 3D Plot of the function
+x_vals = np.linspace(-5, 5, 100)
+y_vals = np.linspace(-5, 5, 100)
+X, Y = np.meshgrid(x_vals, y_vals)
+Z = np.sqrt(X**2 + Y**2)
+
+fig = plt.figure(figsize=(10, 7))
+ax = fig.add_subplot(111, projection='3d')
+ax.plot_surface(X, Y, Z, cmap='viridis', alpha=0.8)
+ax.set_title("3D Plot of z = sqrt(x^2 + y^2)")
+ax.set_xlabel("x-axis")
+ax.set_ylabel("y-axis")
+ax.set_zlabel("z-axis")
+plt.show()
