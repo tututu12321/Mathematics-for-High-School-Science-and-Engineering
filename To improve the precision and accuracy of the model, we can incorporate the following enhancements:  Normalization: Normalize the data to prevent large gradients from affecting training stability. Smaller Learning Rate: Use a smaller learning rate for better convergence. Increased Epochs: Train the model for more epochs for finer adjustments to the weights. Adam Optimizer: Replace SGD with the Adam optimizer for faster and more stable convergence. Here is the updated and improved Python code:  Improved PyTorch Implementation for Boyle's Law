@@ -1,0 +1,87 @@
+import torch
+import torch.nn as nn
+import matplotlib.pyplot as plt
+
+# Generate Boyle's Law data (Pressure vs 1/Volume)
+# Simulated data: Constant k = 10, with less noise
+volume = torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0], dtype=torch.float32).reshape(-1, 1)
+reciprocal_volume = 1 / volume  # 1/Volume
+pressure = 10 / volume + torch.randn_like(volume) * 0.05  # Simulated pressure with less noise
+
+# Normalize data (to improve precision and stability during training)
+reciprocal_volume_mean = reciprocal_volume.mean()
+reciprocal_volume_std = reciprocal_volume.std()
+normalized_reciprocal_volume = (reciprocal_volume - reciprocal_volume_mean) / reciprocal_volume_std
+
+pressure_mean = pressure.mean()
+pressure_std = pressure.std()
+normalized_pressure = (pressure - pressure_mean) / pressure_std
+
+# Model: Linear Regression
+class LinearRegressionModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear = nn.Linear(1, 1)  # One input (1/Volume), one output (Pressure)
+
+    def forward(self, x):
+        return self.linear(x)
+
+# Initialize model, loss function, and optimizer
+model = LinearRegressionModel()
+criterion = nn.MSELoss()  # Mean Squared Error Loss
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01)  # Adam optimizer
+
+# Training loop
+epochs = 3000
+losses = []
+for epoch in range(epochs):
+    # Forward pass
+    predictions = model(normalized_reciprocal_volume)
+    loss = criterion(predictions, normalized_pressure)
+
+    # Backward pass (automatic differentiation)
+    optimizer.zero_grad()  # Clear gradients
+    loss.backward()        # Compute gradients
+    optimizer.step()       # Update parameters
+
+    losses.append(loss.item())
+    if epoch % 500 == 0:
+        print(f"Epoch {epoch}, Loss: {loss.item():.6f}")
+
+# Extract learned parameters
+with torch.no_grad():
+    # Denormalize parameters for physical interpretation
+    slope = model.linear.weight.item() * pressure_std / reciprocal_volume_std
+    intercept = model.linear.bias.item() * pressure_std + pressure_mean - slope * reciprocal_volume_mean
+    print(f"Learned Boyle's Law Constant (k): {slope:.4f}")
+    print(f"Intercept: {intercept:.4f}")
+
+# Predictions
+with torch.no_grad():
+    predicted_pressure = model(normalized_reciprocal_volume) * pressure_std + pressure_mean
+
+# Plot results
+plt.figure(figsize=(10, 6))
+
+# Original data
+plt.scatter(volume, pressure, color="blue", label="Experimental Data")
+
+# Fitted line (pressure vs volume)
+plt.plot(volume, predicted_pressure, color="red", label="Fitted Line")
+
+plt.title("Boyle's Law: Linear Regression with PyTorch (Improved)")
+plt.xlabel("Volume (L)")
+plt.ylabel("Pressure (P)")
+plt.grid()
+plt.legend()
+plt.show()
+
+# Loss plot
+plt.figure(figsize=(8, 5))
+plt.plot(range(epochs), losses, label="Training Loss", color="purple")
+plt.title("Loss During Training")
+plt.xlabel("Epoch")
+plt.ylabel("MSE Loss")
+plt.grid()
+plt.legend()
+plt.show()
