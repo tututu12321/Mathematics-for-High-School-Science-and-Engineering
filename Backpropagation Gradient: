@@ -1,0 +1,121 @@
+import numpy as np
+
+# Numerical Differentiation Function
+def numerical_diff(f, x):
+    """
+    Calculate the numerical derivative of a function f at point x using central differences.
+    
+    Parameters:
+    f - The function to differentiate
+    x - The point at which to compute the derivative
+    
+    Returns:
+    The numerical derivative at x
+    """
+    h = 1e-4  # A small value close to zero
+    return (f(x + h) - f(x - h)) / (2 * h)
+
+# Numerical Gradient Function
+def numerical_gradient(loss_func, W):
+    """
+    Compute the gradient of a loss function numerically using central differences.
+    
+    Parameters:
+    loss_func - The loss function to compute the gradient for
+    W - The weights or parameters (numpy array)
+    
+    Returns:
+    The numerical gradient as a numpy array
+    """
+    h = 1e-4  # A small value close to zero
+    grad = np.zeros_like(W)  # Initialize the gradient array
+
+    for i in range(W.size):
+        W_plus_h = W.copy()
+        W_minus_h = W.copy()
+
+        W_plus_h[i] += h
+        W_minus_h[i] -= h
+
+        # Compute central difference
+        grad[i] = (loss_func(W_plus_h) - loss_func(W_minus_h)) / (2 * h)
+
+    return grad
+
+# Backpropagation Gradient Function
+def backprop_gradient(W):
+    """
+    Compute the gradient of the loss function analytically using backpropagation.
+    Here, the loss function is assumed to be the sum of squares of weights: E = sum(W^2).
+    
+    Parameters:
+    W - The weights or parameters (numpy array)
+    
+    Returns:
+    The analytical gradient as a numpy array
+    """
+    return 2 * W  # Derivative of W^2 is 2W
+
+# Example Loss Function
+def loss(W):
+    """
+    Example loss function: Sum of squares of weights.
+    
+    Parameters:
+    W - The weights or parameters (numpy array)
+    
+    Returns:
+    The loss value
+    """
+    return np.sum(W**2)
+
+# Example Weights
+W = np.array([1.0, -2.0, 3.0])  # Example weights
+
+# Compute Gradients
+numerical_grad = numerical_gradient(loss, W)  # Numerical gradient
+backprop_grad = backprop_gradient(W)          # Backpropagation gradient
+
+# Compare Results
+print("Numerical Gradient vs Backpropagation Gradient")
+for i in range(W.size):
+    print(f"W{i+1}: Numerical = {numerical_grad[i]:.6f}, Backprop = {backprop_grad[i]:.6f}")
+
+# Numerical Differentiation Example
+def f_x(x):
+    """
+    Example function for partial differentiation with respect to x.
+    
+    f(x, y) = x^2 + y^2 where y = 2.0 is fixed.
+    """
+    y = 2.0
+    return x**2 + y**2
+
+df_dx = numerical_diff(f_x, 3.0)  # Partial derivative w.r.t x at x=3
+print(f"∂f/∂x (at x=3): {df_dx:.6f}")
+
+def f_y(y):
+    """
+    Example function for partial differentiation with respect to y.
+    
+    f(x, y) = x^2 + y^2 where x = 2.0 is fixed.
+    """
+    x = 2.0
+    return x**2 + y**2
+
+df_dy = numerical_diff(f_y, 3.0)  # Partial derivative w.r.t y at y=3
+print(f"∂f/∂y (at y=3): {df_dy:.6f}")
+
+# Loss Function Trajectory Example
+t = np.linspace(-3, 3, 100)
+loss_values = [loss(np.array([x])) for x in t]
+
+import matplotlib.pyplot as plt
+
+plt.plot(t, loss_values, label="Loss Function E(W)")
+plt.title("Loss Function Trajectory")
+plt.xlabel("W")
+plt.ylabel("E(W)")
+plt.grid(True)
+plt.legend()
+plt.show()
