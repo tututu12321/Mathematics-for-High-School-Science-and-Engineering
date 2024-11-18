@@ -1,0 +1,128 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定義された関数
+def logistic_function(x, L=1, k=1, x0=0):
+    return L / (1 + np.exp(-k * (x - x0)))
+
+def sigmoid_function(x, k=1, x0=0):
+    return 1 / (1 + np.exp(-k * (x - x0)))
+
+def gaussian_function(x, A=1, mu=0, sigma=1):
+    return A * np.exp(- (x - mu)**2 / (2 * sigma**2))
+
+def exponential_decay(x, A=1, k=1):
+    return A * np.exp(-k * x)
+
+def first_order_system(x, A=1, tau=1):
+    return A * (1 - np.exp(-x / tau))
+
+def temperature_cooling(x, T_env=25, T0=100, tau=10):
+    return T_env + (T0 - T_env) * np.exp(-x / tau)
+
+def planck_function(x, T=300):
+    h = 6.62607015e-34  # Planck constant (J·s)
+    c = 3.0e8  # speed of light (m/s)
+    k_B = 1.380649e-23  # Boltzmann constant (J/K)
+    
+    # xがゼロの場合を回避するため、x=0を避ける処理を追加
+    x = np.where(x == 0, 1e-9, x)  # x = 0の場合、非常に小さな値に置き換え
+    
+    return (8 * np.pi * h * x**3) / (c**3) * 1 / (np.exp((h * x) / (k_B * T)) - 1)
+
+# xの範囲
+x = np.linspace(0.1, 10, 1000)
+
+# ロジスティクス関数
+y_logistic = logistic_function(x)
+
+# シグモイド関数
+y_sigmoid = sigmoid_function(x)
+
+# ガウス関数
+y_gaussian = gaussian_function(x)
+
+# 指数関数的減衰
+y_exponential_decay = exponential_decay(x)
+
+# 一次遅れ系関数
+y_first_order_system = first_order_system(x)
+
+# 温度の冷却関数
+y_temperature_cooling = temperature_cooling(x)
+
+# プランク関数のためのx範囲
+x_planck = np.linspace(1e-9, 1e-3, 500)  # Frequency range (Hz)
+y_planck = planck_function(x_planck)
+
+# 各関数を個別にプロット
+
+# ロジスティクス関数
+plt.figure(figsize=(10, 6))
+plt.plot(x, y_logistic, label="Logistic Function")
+plt.title("Logistic Function")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# シグモイド関数
+plt.figure(figsize=(10, 6))
+plt.plot(x, y_sigmoid, label="Sigmoid Function", color='r')
+plt.title("Sigmoid Function")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# ガウス関数
+plt.figure(figsize=(10, 6))
+plt.plot(x, y_gaussian, label="Gaussian Function", color='g')
+plt.title("Gaussian Function")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# 指数関数的減衰
+plt.figure(figsize=(10, 6))
+plt.plot(x, y_exponential_decay, label="Exponential Decay", color='m')
+plt.title("Exponential Decay")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# 一次遅れ系関数
+plt.figure(figsize=(10, 6))
+plt.plot(x, y_first_order_system, label="First-Order System", color='b')
+plt.title("First-Order System")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# 温度の冷却関数
+plt.figure(figsize=(10, 6))
+plt.plot(x, y_temperature_cooling, label="Temperature Cooling", color='c')
+plt.title("Temperature Cooling")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# プランク関数
+plt.figure(figsize=(10, 6))
+plt.plot(x_planck, y_planck, label="Planck's Law", color='purple')
+plt.title("Planck Function")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Intensity")
+plt.grid(True)
+plt.legend()
+plt.show()
