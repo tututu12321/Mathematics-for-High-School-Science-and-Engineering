@@ -1,0 +1,65 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# pHから水素イオン濃度を計算する関数
+def hydrogen_ion_concentration(pH):
+    return 10 ** (-pH)
+
+# 水素イオン濃度からpHを計算する関数
+def pH_from_concentration(H_concentration):
+    return -np.log10(H_concentration)
+
+# pHとpOHの関係を計算する関数
+def pOH_from_pH(pH):
+    return 14 - pH
+
+# pHの範囲を設定
+pH_values = np.linspace(0, 14, 100)
+
+# 各pH値に対して水素イオン濃度を計算
+H_concentrations = hydrogen_ion_concentration(pH_values)
+
+# 各pH値に対してpOHを計算
+pOH_values = pOH_from_pH(pH_values)
+
+# グラフを描画
+plt.figure(figsize=(12, 8))
+
+# pHと水素イオン濃度のグラフ
+plt.subplot(2, 2, 1)
+plt.plot(pH_values, H_concentrations, label=r'$[\text{H}^+]$ from pH', color='blue')
+plt.title('Hydrogen Ion Concentration vs pH')
+plt.xlabel('pH')
+plt.ylabel(r'$[\text{H}^+]$ (mol/L)')
+plt.grid(True)
+plt.legend()
+
+# pHとpOHの関係を描画
+plt.subplot(2, 2, 2)
+plt.plot(pH_values, pOH_values, label='pOH from pH', color='green')
+plt.title('pOH vs pH')
+plt.xlabel('pH')
+plt.ylabel('pOH')
+plt.grid(True)
+plt.legend()
+
+# 水素イオン濃度の対数プロット
+plt.subplot(2, 2, 3)
+plt.plot(H_concentrations, np.log10(H_concentrations), label=r'$\log[\text{H}^+]$ vs $[\text{H}^+]$', color='red')
+plt.title('Logarithmic Plot of Hydrogen Ion Concentration')
+plt.xlabel(r'$[\text{H}^+]$ (mol/L)')
+plt.ylabel(r'$\log[\text{H}^+]$')
+plt.grid(True)
+plt.legend()
+
+# pH値と濃度の関係を指数関数で示すグラフ
+plt.subplot(2, 2, 4)
+plt.plot(pH_values, 10 ** (-pH_values), label=r'$10^{-\text{pH}}$', color='purple')
+plt.title('Logarithmic and Exponential Function')
+plt.xlabel('pH')
+plt.ylabel(r'$[\text{H}^+]$ (mol/L)')
+plt.grid(True)
+plt.legend()
+
+plt.tight_layout()
+plt.show()
