@@ -1,0 +1,27 @@
+import numpy as np
+
+# Given values
+Kc = 6.80e-4  # Equilibrium constant
+HA_initial = 0.150  # Initial concentration of HA (M)
+
+# Coefficients for the quadratic equation ax^2 + bx + c = 0
+a = 1
+b = 6.80e-4
+c = -Kc * HA_initial
+
+# Solve the quadratic equation using the quadratic formula
+discriminant = b**2 - 4 * a * c
+x1 = (-b + np.sqrt(discriminant)) / (2 * a)
+x2 = (-b - np.sqrt(discriminant)) / (2 * a)
+
+# Only the positive root is valid
+x = max(x1, x2)
+
+# Equilibrium concentrations
+HA_eq = HA_initial - x
+H_plus_eq = x
+A_minus_eq = x
+
+print(f"Equilibrium concentration of HA: {HA_eq:.4f} M")
+print(f"Equilibrium concentration of H+: {H_plus_eq:.4f} M")
+print(f"Equilibrium concentration of A-: {A_minus_eq:.4f} M")
