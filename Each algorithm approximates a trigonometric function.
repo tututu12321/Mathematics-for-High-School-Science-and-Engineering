@@ -1,0 +1,83 @@
+import math
+import numpy as np
+
+# === 1. CORDIC Algorithm ===
+def cordic_sin_cos(theta, iterations=16):
+    """
+    CORDIC Algorithm for sin and cos computation.
+    Simulates hardware-like iterative calculation.
+    """
+    # Initialize constants
+    K = 0.6072529350088812561694  # CORDIC gain for iterations = 16
+    x = K
+    y = 0
+    z = theta  # Input angle in radians
+    
+    # Precompute arctan values for each iteration
+    atan_table = [math.atan(2 ** -i) for i in range(iterations)]
+    
+    # Iterative computation
+    for i in range(iterations):
+        di = 1 if z >= 0 else -1  # Direction based on z
+        x_new = x - di * y * (2 ** -i)
+        y_new = y + di * x * (2 ** -i)
+        z -= di * atan_table[i]
+        x, y = x_new, y_new
+    
+    return x, y  # cos(theta), sin(theta)
+
+# === 2. Taylor Series Expansion ===
+def taylor_sin(x, terms=10):
+    """
+    Taylor series approximation for sin(x).
+    """
+    result = 0
+    for n in range(terms):
+        term = (-1) ** n * (x ** (2 * n + 1)) / math.factorial(2 * n + 1)
+        result += term
+    return result
+
+def taylor_cos(x, terms=10):
+    """
+    Taylor series approximation for cos(x).
+    """
+    result = 0
+    for n in range(terms):
+        term = (-1) ** n * (x ** (2 * n)) / math.factorial(2 * n)
+        result += term
+    return result
+
+# === 3. Look-Up Table (LUT) ===
+def lut_sin_cos(angle, lut_size=360):
+    """
+    LUT-based sin and cos computation.
+    LUT size defines precision (e.g., 360 values for 1-degree steps).
+    """
+    # Precompute LUT for sin and cos values
+    sin_table = [math.sin(math.radians(i)) for i in range(lut_size)]
+    cos_table = [math.cos(math.radians(i)) for i in range(lut_size)]
+    
+    # Normalize input angle to [0, 360) and map to LUT index
+    angle = angle % 360
+    index = int(angle * lut_size / 360)
+    
+    return cos_table[index], sin_table[index]
+
+# メイン関数: デジタル回路・FPGAでの三角関数計算を模擬
+if __name__ == "__main__":
+    # 入力角度（度単位、デジタル回路では固定小数点が一般的）
+    input_angle_deg = 30  # 例: 30度
+    input_angle_rad = math.radians(input_angle_deg)  # ラジアン変換
+
+    print("=== CORDIC Algorithm ===")
+    cos_cordic, sin_cordic = cordic_sin_cos(input_angle_rad)
+    print(f"CORDIC: cos({input_angle_deg}°) ≈ {cos_cordic}, sin({input_angle_deg}°) ≈ {sin_cordic}")
+
+    print("\n=== Taylor Series Expansion ===")
+    sin_taylor = taylor_sin(input_angle_rad)
+    cos_taylor = taylor_cos(input_angle_rad)
+    print(f"Taylor: cos({input_angle_deg}°) ≈ {cos_taylor}, sin({input_angle_deg}°) ≈ {sin_taylor}")
+
+    print("\n=== Look-Up Table (LUT) ===")
+    cos_lut, sin_lut = lut_sin_cos(input_angle_deg)
+    print(f"LUT: cos({input_angle_deg}°) ≈ {cos_lut}, sin({input_angle_deg}°) ≈ {sin_lut}")
