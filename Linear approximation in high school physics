@@ -1,0 +1,68 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定義された関数
+def exact_sqrt(x):
+    return np.sqrt(1 + x)
+
+def approx_sqrt(x):
+    return 1 + x / 2
+
+def exact_power(x, n):
+    return (1 + x)**n
+
+def approx_power(x, n):
+    return 1 + n * x
+
+# xの範囲
+x_values = np.linspace(0, 0.1, 100)
+
+# 近似と実際の関数を計算
+sqrt_exact = exact_sqrt(x_values)
+sqrt_approx = approx_sqrt(x_values)
+
+power_exact = exact_power(x_values, 2)
+power_approx = approx_power(x_values, 2)
+
+# プロット
+plt.figure(figsize=(10, 8))
+
+# 1. √(1+x) の近似
+plt.subplot(2, 2, 1)
+plt.plot(x_values, sqrt_exact, label='Exact √(1+x)')
+plt.plot(x_values, sqrt_approx, label='Approx 1 + x/2', linestyle='--')
+plt.title("Square Root Approximation")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.grid()
+plt.legend()
+
+# 2. (1+x)^n の近似
+plt.subplot(2, 2, 2)
+plt.plot(x_values, power_exact, label='Exact (1+x)^2')
+plt.plot(x_values, power_approx, label='Approx 1 + 2x', linestyle='--')
+plt.title("(1+x)^2 Approximation")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.grid()
+plt.legend()
+
+# 3. 小角度近似
+theta_values = np.linspace(0, 0.1, 100)
+sin_exact = np.sin(theta_values)
+tan_exact = np.tan(theta_values)
+cos_exact = np.cos(theta_values)
+
+plt.subplot(2, 2, 3)
+plt.plot(theta_values, sin_exact, label='sin(θ)', color='r')
+plt.plot(theta_values, tan_exact, label='tan(θ)', color='g')
+plt.plot(theta_values, cos_exact, label='cos(θ)', color='b')
+plt.plot(theta_values, theta_values, label='Approx θ', linestyle='--')
+plt.title("Small Angle Approximations")
+plt.xlabel("θ (radians)")
+plt.ylabel("y")
+plt.grid()
+plt.legend()
+
+plt.tight_layout()
+plt.show()
