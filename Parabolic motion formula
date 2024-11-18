@@ -1,0 +1,47 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Initial velocity and launch angle
+v0 = 20  # Initial velocity (m/s)
+theta = 45  # Launch angle (degrees)
+g = 9.81  # Gravitational acceleration (m/s^2)
+
+# Convert angle to radians
+theta_rad = np.radians(theta)
+
+# Time array (from 0 to the flight time)
+t_flight = 2 * v0 * np.sin(theta_rad) / g  # Flight time
+t = np.linspace(0, t_flight, num=500)  # Time array
+
+# Horizontal and vertical velocities
+vx = v0 * np.cos(theta_rad)
+vy = v0 * np.sin(theta_rad) - g * t
+
+# Horizontal and vertical displacements
+x = vx * t
+y = v0 * np.sin(theta_rad) * t - 0.5 * g * t**2
+
+# Plotting the projectile motion
+plt.figure(figsize=(12, 10))
+
+# Plot of position
+plt.subplot(2, 1, 1)
+plt.plot(x, y, label="Projectile Motion")
+plt.title("Projectile Motion Path")
+plt.xlabel("Horizontal Distance (m)")
+plt.ylabel("Height (m)")
+plt.grid()
+plt.legend()
+
+# Position and velocity changes with respect to time
+plt.subplot(2, 1, 2)
+plt.plot(t, x, label="Horizontal Position (x)")
+plt.plot(t, y, label="Vertical Position (y)")
+plt.title("Position Over Time")
+plt.xlabel("Time (s)")
+plt.ylabel("Position (m)")
+plt.grid()
+plt.legend()
+
+plt.tight_layout()
+plt.show()
