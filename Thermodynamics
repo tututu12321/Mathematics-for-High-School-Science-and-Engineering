@@ -1,0 +1,50 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# グラフ用の定数
+n = 1  # モル数
+R = 8.314  # 気体定数 [J/(mol·K)]
+T1 = 300  # 初期温度 [K]
+V1 = 1.0  # 初期体積 [m³]
+P1 = n * R * T1 / V1  # 初期圧力 [Pa]
+
+# 状態変化の範囲
+V2 = 2.0  # 最終体積 [m³]
+V = np.linspace(V1, V2, 500)
+
+# 定圧変化 (P = const)
+P_const = P1 * np.ones_like(V)
+
+# 定積変化 (V = const)
+T2 = 600  # 定積で温度が上昇した場合
+P_const_volume = n * R * np.linspace(T1, T2, 500) / V1
+
+# 等温変化 (T = const)
+P_isothermal = n * R * T1 / V
+
+# 断熱変化 (Q = 0, PV^γ = const)
+gamma = 5 / 3  # 単原子分子の比熱比
+P_adiabatic = P1 * (V1 / V) ** gamma
+
+# プロット
+plt.figure(figsize=(12, 8))
+
+# 定圧変化
+plt.plot(V, P_const, label="Isobaric (P=const)", color="blue")
+
+# 定積変化
+plt.plot([V1]*500, P_const_volume, label="Isochoric (V=const)", color="green")
+
+# 等温変化
+plt.plot(V, P_isothermal, label="Isothermal (T=const)", color="orange")
+
+# 断熱変化
+plt.plot(V, P_adiabatic, label="Adiabatic (Q=0)", color="red")
+
+# グラフの装飾
+plt.title("State Changes of an Ideal Gas", fontsize=16)
+plt.xlabel("Volume $V$ [m³]", fontsize=14)
+plt.ylabel("Pressure $P$ [Pa]", fontsize=14)
+plt.grid(True)
+plt.legend(fontsize=12)
+plt.show()
