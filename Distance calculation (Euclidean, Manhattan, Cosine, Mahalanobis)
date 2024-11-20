@@ -1,0 +1,125 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.neighbors import KNeighborsClassifier, LocalOutlierFactor
+from sklearn.manifold import TSNE
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from scipy.spatial.distance import mahalanobis
+
+# --- 1. 距離計算の基礎関数 ---
+def calculate_distances():
+    # 距離計算の基本例を実行
+    print("\n--- 距離計算の例 ---")
+    # サンプルデータ
+    x = np.array([1, 2])
+    y = np.array([4, 6])
+
+    # ユークリッド距離
+    euclidean = np.sqrt(np.sum((x - y) ** 2))
+    print("ユークリッド距離:", euclidean)
+
+    # マンハッタン距離
+    manhattan = np.sum(np.abs(x - y))
+    print("マンハッタン距離:", manhattan)
+
+    # コサイン類似度
+    cosine = np.dot(x, y) / (np.linalg.norm(x) * np.linalg.norm(y))
+    print("コサイン類似度:", cosine)
+
+    # マハラノビス距離
+    data = np.random.multivariate_normal([2, 3], [[1, 0.5], [0.5, 2]], 100)
+    mean = np.mean(data, axis=0)
+    cov_matrix = np.cov(data, rowvar=False)
+    inv_cov_matrix = np.linalg.inv(cov_matrix)
+    mahalanobis_dist = mahalanobis(x, mean, inv_cov_matrix)
+    print("マハラノビス距離:", mahalanobis_dist)
+
+# --- 2. クラスタリング (k-Means) ---
+def clustering_example():
+    # k-Meansクラスタリングの例を実行
+    print("\n--- クラスタリング (k-Means) ---")
+    X = np.random.rand(300, 2)
+    kmeans = KMeans(n_clusters=3, random_state=42)
+    kmeans.fit(X)
+
+    # クラスタリング結果をプロット
+    plt.scatter(X[:, 0], X[:, 1], c=kmeans.labels_, cmap='viridis', alpha=0.5)
+    plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], color='red', marker='x', s=200, label='Centers')
+    plt.legend()
+    plt.title("k-Means Clustering")
+    plt.xlabel("X-axis")
+    plt.ylabel("Y-axis")
+    plt.show()
+
+# --- 3. 分類 (k-NN) ---
+def classification_example():
+    # k-NNによる分類の例を実行
+    print("\n--- 分類 (k-NN) ---")
+    X_train = np.random.rand(100, 2)
+    y_train = np.random.choice([0, 1], 100)
+
+    knn = KNeighborsClassifier(n_neighbors=5)
+    knn.fit(X_train, y_train)
+
+    X_test = np.random.rand(10, 2)
+    predictions = knn.predict(X_test)
+    print("k-NN 分類結果:", predictions)
+
+# --- 4. 異常検知 ---
+def outlier_detection_example():
+    # 異常検知の例を実行
+    print("\n--- 異常検知 ---")
+    X = np.random.rand(300, 2)
+    lof = LocalOutlierFactor(n_neighbors=20)
+    outlier_scores = lof.fit_predict(X)
+
+    # 異常検知結果をプロット
+    plt.scatter(X[:, 0], X[:, 1], c=outlier_scores, cmap='coolwarm', alpha=0.7)
+    plt.title("Outlier Detection")
+    plt.xlabel("X-axis")
+    plt.ylabel("Y-axis")
+    plt.show()
+
+# --- 5. 次元削減 (t-SNE, PCA) ---
+def dimensionality_reduction_example():
+    # 次元削減の例を実行
+    print("\n--- 次元削減 ---")
+    X_high = np.random.rand(300, 50)
+
+    # t-SNE
+    X_tsne = TSNE(n_components=2, random_state=42).fit_transform(X_high)
+    plt.scatter(X_tsne[:, 0], X_tsne[:, 1], alpha=0.7)
+    plt.title("t-SNE Dimensionality Reduction")
+    plt.xlabel("Dimension 1")
+    plt.ylabel("Dimension 2")
+    plt.show()
+
+    # PCA
+    X_pca = PCA(n_components=2).fit_transform(X_high)
+    plt.scatter(X_pca[:, 0], X_pca[:, 1], alpha=0.7)
+    plt.title("PCA Dimensionality Reduction")
+    plt.xlabel("Principal Component 1")
+    plt.ylabel("Principal Component 2")
+    plt.show()
+
+# --- 6. 推薦システム (コサイン類似度) ---
+def recommendation_example():
+    # コサイン類似度を用いた推薦システムの例を実行
+    print("\n--- 推薦システム ---")
+    users = np.random.rand(5, 3)  # 5人のユーザーの評価 (3項目)
+    target_user = np.random.rand(3)  # 1人のユーザーの評価
+
+    similarity = cosine_similarity(users, target_user.reshape(1, -1)).flatten()
+    most_similar_user = np.argmax(similarity)
+    print(f"最も類似したユーザー: {most_similar_user}, 類似度: {similarity[most_similar_user]}")
+
+# --- メイン処理 ---
+if __name__ == "__main__":
+    calculate_distances()
+    clustering_example()
+    classification_example()
+    outlier_detection_example()
+    dimensionality_reduction_example()
+    recommendation_example()
