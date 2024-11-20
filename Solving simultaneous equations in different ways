@@ -1,0 +1,147 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 鶴亀算の設定
+t = 10  # 合計匹数
+l = 32  # 足の合計本数
+
+# 係数行列 A と定数ベクトル b
+A = np.array([[1, 1], [2, 4]])
+b = np.array([t, l])
+
+# --- 1. 逆行列法 ---
+def inverse_matrix_solution(A, b):
+    x = np.linalg.inv(A).dot(b)
+    return x
+
+# --- 2. ガウスの消去法 ---
+def gaussian_elimination_solution(A, b):
+    x = np.linalg.solve(A, b)
+    return x
+
+# --- 3. Cramerの公式 ---
+def cramer_solution(A, b):
+    det_A = np.linalg.det(A)
+    if det_A == 0:
+        raise ValueError("Matrix is singular!")
+    x = np.zeros(len(b))
+    for i in range(len(b)):
+        A_i = A.copy()
+        A_i[:, i] = b
+        x[i] = np.linalg.det(A_i) / det_A
+    return x
+
+# --- 4. Jacobi法 ---
+def jacobi_solution(A, b, tol=1e-6, max_iterations=100):
+    n = len(b)
+    x = np.zeros(n)  # 初期解
+    for _ in range(max_iterations):
+        x_new = np.zeros_like(x)
+        for i in range(n):
+            s = sum(A[i, j] * x[j] for j in range(n) if j != i)
+            x_new[i] = (b[i] - s) / A[i, i]
+        if np.linalg.norm(x_new - x, ord=np.inf) < tol:
+            return x_new
+        x = x_new
+    raise ValueError("Jacobi method did not converge")
+
+# --- 5. ガウス・ザイデル法 ---
+def gauss_seidel_solution(A, b, tol=1e-6, max_iterations=100):
+    n = len(b)
+    x = np.zeros(n)  # 初期解
+    for _ in range(max_iterations):
+        x_new = np.copy(x)
+        for i in range(n):
+            s1 = sum(A[i, j] * x_new[j] for j in range(i))
+            s2 = sum(A[i, j] * x[j] for j in range(i + 1, n))
+            x_new[i] = (b[i] - s1 - s2) / A[i, i]
+        if np.linalg.norm(x_new - x, ord=np.inf) < tol:
+            return x_new
+        x = x_new
+    raise ValueError("Gauss-Seidel method did not converge")
+
+# --- 6. 共役勾配法 ---
+def conjugate_gradient_solution(A, b, tol=1e-6):
+    x = np.zeros(len(b))
+    r = b - A.dot(x)
+    p = r.copy()
+    for _ in range(len(b)):
+        Ap = A.dot(p)
+        alpha = r.dot(r) / p.dot(Ap)
+        x = x + alpha * p
+        r_new = r - alpha * Ap
+        if np.linalg.norm(r_new) < tol:
+            return x
+        beta = r_new.dot(r_new) / r.dot(r)
+        p = r_new + beta * p
+        r = r_new
+    return x
+
+# --- 7. 遺伝的アルゴリズム ---
+def genetic_algorithm_solution(population_size=10, generations=50):
+    def fitness(x):
+        residual = np.abs(A.dot(x) - b)
+        return -np.sum(residual)  # 適応度は誤差の逆数
+
+    def crossover(parents):
+        return (parents[0] + parents[1]) / 2
+
+    def mutate(child):
+        return child + np.random.randn(2) * 0.1
+
+    population = [np.random.rand(2) * 10 for _ in range(population_size)]
+    for _ in range(generations):
+        population = sorted(population, key=fitness, reverse=True)
+        parents = population[:2]
+        child = mutate(crossover(parents))
+        population[-1] = child
+
+    best_solution = population[0]
+    return best_solution
+
+# 各解法を実行
+solutions = {
+    "Inverse Matrix": inverse_matrix_solution(A, b),
+    "Gaussian Elimination": gaussian_elimination_solution(A, b),
+    "Cramer's Rule": cramer_solution(A, b),
+    "Jacobi Method": jacobi_solution(A, b),
+    "Gauss-Seidel Method": gauss_seidel_solution(A, b),
+    "Conjugate Gradient Method": conjugate_gradient_solution(A, b),
+    "Genetic Algorithm": genetic_algorithm_solution(),
+}
+
+# 結果を表示
+print("Solutions for Tsurukame Problem:")
+for method, solution in solutions.items():
+    print(f"{method}: Crane = {solution[0]:.2f}, Turtle = {solution[1]:.2f}")
+
+# プロットの準備
+x = np.linspace(0, 10, 100)
+y1 = (t - x)  # 直線 1: x1 + x2 = 10
+y2 = (l - 2 * x) / 4  # 直線 2: 2x1 + 4x2 = 32
+
+# プロット
+plt.figure(figsize=(8, 6))
+plt.plot(x, y1, label="x1 + x2 = 10 (Slope: -1)", color="blue")
+plt.plot(x, y2, label="2x1 + 4x2 = 32 (Slope: -0.5)", color="green")
+
+# 最適解をプロット
+best_ga_solution = solutions["Genetic Algorithm"]
+plt.scatter(best_ga_solution[0], best_ga_solution[1], color="red", label=f"GA Solution: ({best_ga_solution[0]:.2f}, {best_ga_solution[1]:.2f})")
+
+# グラフ設定
+plt.xlabel("Number of Cranes (x1)")
+plt.ylabel("Number of Turtles (x2)")
+plt.title("Tsurukame Problem Solution")
+plt.axhline(0, color="black", linewidth=0.5)
+plt.axvline(0, color="black", linewidth=0.5)
+plt.legend()
+plt.grid()
+plt.xlim(0, 10)
+plt.ylim(0, 10)
+
+# 傾きを注釈
+plt.text(2, 7, "Slope: -1", color="blue", fontsize=10)
+plt.text(2, 4, "Slope: -0.5", color="green", fontsize=10)
+
+plt.show()
