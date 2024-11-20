@@ -1,0 +1,161 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import minimize
+
+# 二次関数の係数
+a, b, c = 1, -3, 2  # f(x) = x^2 - 3x + 2
+
+# 目的関数
+def objective_function(x):
+    return a * x**2 + b * x + c
+
+# --- 数学的解法 ---
+def analytical_solution(a, b, c):
+    x_min = -b / (2 * a)
+    f_min = objective_function(x_min)
+    return x_min, f_min
+
+# --- 勾配降下法 ---
+def gradient_descent(a, b, lr=0.1, iterations=100):
+    x = 0  # 初期値
+    for _ in range(iterations):
+        grad = 2 * a * x + b  # f'(x)
+        x -= lr * grad
+    return x, objective_function(x)
+
+# --- ニュートン法 ---
+def newtons_method(a, b, c, x0=0, iterations=10):
+    for _ in range(iterations):
+        grad = 2 * a * x0 + b  # 一階導関数
+        hessian = 2 * a        # 二階導関数
+        x0 -= grad / hessian
+    return x0, objective_function(x0)
+
+# --- Scipy最適化 ---
+def scipy_optimization():
+    result = minimize(objective_function, x0=0)  # 初期値 x0 = 0
+    return result.x[0], result.fun
+
+# --- 遺伝的アルゴリズム ---
+def genetic_algorithm(population_size=10, generations=50):
+    # 適応度関数
+    def fitness(x):
+        return 1 / (1 + objective_function(x))
+    
+    # 親選択
+    def select_parents(population, fitness_values):
+        idx = np.argsort(fitness_values)
+        return population[idx[-2:]]  # 最も適応度の高い2個体を返す
+
+    # 交叉
+    def crossover(parents):
+        return (parents[0] + parents[1]) / 2
+
+    # 突然変異
+    def mutate(child):
+        return child + np.random.randn() * 0.1  # 標準偏差0.1の変異
+
+    # 初期集団
+    population = np.random.uniform(-10, 10, population_size)
+
+    # アルゴリズム実行
+    for generation in range(generations):
+        fit = fitness(population)
+        parents = select_parents(population, fit)
+        child = mutate(crossover(parents))
+        population[np.argmin(fit)] = child  # 最も適応度の低い個体を置換
+
+    best_idx = np.argmax(fitness(population))
+    best_solution = population[best_idx]
+    best_value = objective_function(best_solution)
+    return best_solution, best_value
+
+# --- 解析的な微分 ---
+def analytical_derivative(a, b):
+    # 微分: f'(x) = 2ax + b
+    return lambda x: 2 * a * x + b
+
+# --- 二分探索法 ---
+def binary_search(a, b, c, left=-10, right=10, tol=1e-6):
+    while right - left > tol:
+        mid = (left + right) / 2
+        grad = 2 * a * mid + b  # f'(x)
+        if grad > 0:
+            right = mid
+        else:
+            left = mid
+    x_min = (left + right) / 2
+    f_min = objective_function(x_min)
+    return x_min, f_min
+
+# --- 黄金探索法 ---
+def golden_section_search(a, b, c, left=-10, right=10, tol=1e-6):
+    phi = (1 + np.sqrt(5)) / 2  # 黄金比
+    inv_phi = 1 / phi
+    x1 = right - (right - left) * inv_phi
+    x2 = left + (right - left) * inv_phi
+
+    while right - left > tol:
+        f1 = objective_function(x1)
+        f2 = objective_function(x2)
+        if f1 < f2:
+            right = x2
+            x2 = x1
+            x1 = right - (right - left) * inv_phi
+        else:
+            left = x1
+            x1 = x2
+            x2 = left + (right - left) * inv_phi
+
+    x_min = (left + right) / 2
+    f_min = objective_function(x_min)
+    return x_min, f_min
+
+# 各解法を実行
+analytical = analytical_solution(a, b, c)
+gradient = gradient_descent(a, b)
+newton = newtons_method(a, b, c)
+scipy_opt = scipy_optimization()
+genetic = genetic_algorithm()
+binary = binary_search(a, b, c)
+golden = golden_section_search(a, b, c)
+
+# 解析的微分による解
+derivative_func = analytical_derivative(a, b)
+derivative_min = -b / (2 * a)  # 微分で最小値の位置を求める
+derivative_value = objective_function(derivative_min)
+
+# 結果を比較
+solutions = {
+    "Analytical": analytical,
+    "Gradient Descent": gradient,
+    "Newton's Method": newton,
+    "Scipy Optimization": scipy_opt,
+    "Genetic Algorithm": genetic,
+    "Binary Search": binary,
+    "Golden Section": golden,
+    "Derivative Method": (derivative_min, derivative_value),
+}
+
+print("Results:")
+for method, (x, f) in solutions.items():
+    print(f"{method}: Minimum x = {x:.6f}, Minimum f(x) = {f:.6f}")
+
+# プロット
+x_vals = np.linspace(-1, 4, 500)
+y_vals = objective_function(x_vals)
+
+plt.figure(figsize=(12, 8))
+plt.plot(x_vals, y_vals, label="f(x) = ax^2 + bx + c", color="blue")
+
+# 各解法の結果をプロット
+colors = ['red', 'green', 'orange', 'purple', 'brown', 'pink', 'gray', 'cyan']
+for idx, (method, (x, f)) in enumerate(solutions.items()):
+    plt.scatter(x, f, color=colors[idx % len(colors)], label=f"{method} (x={x:.4f}, f={f:.4f})")
+
+plt.title("Comparison of Optimization Methods")
+plt.xlabel("x")
+plt.ylabel("f(x)")
+plt.legend()
+plt.grid(True)
+plt.show()
