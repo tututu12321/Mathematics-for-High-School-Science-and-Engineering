@@ -1,0 +1,56 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+
+# スカイツリーの高さ (m)
+height = 634
+
+# 観測地点の距離の範囲 (水平距離 d)
+distance_range = np.linspace(100, 2000, 500)  # 100mから2000mまで
+
+# 各距離での仰角を計算
+angles = np.arctan(height / distance_range)  # 角度をラジアンで計算
+angles_degrees = np.degrees(angles)  # ラジアンを度に変換
+
+# 特定の仰角から距離を計算 (例: 30度)
+target_angle = 30  # 仰角 (度)
+target_angle_radians = np.radians(target_angle)  # ラジアンに変換
+calculated_distance = height / math.tan(target_angle_radians)
+
+# スカイツリーを複素数平面上で表現
+# 観測地点を原点 (0 + 0j)、スカイツリーの頂点を (水平距離 + 高さj) としてプロット
+observation_point = 0 + 0j
+skytree_top = calculated_distance + height * 1j
+
+# グラフ描画
+plt.figure(figsize=(14, 8))
+
+# 距離と角度の関係をプロット
+plt.subplot(1, 2, 1)
+plt.plot(distance_range, angles_degrees, label="Angle vs Distance", color="blue")
+plt.axhline(y=target_angle, color="red", linestyle="--", label=f"Target Angle: {target_angle}°")
+plt.axvline(x=calculated_distance, color="green", linestyle="--", label=f"Distance at {target_angle}°: {calculated_distance:.2f} m")
+plt.title("Relationship Between Distance and Viewing Angle", fontsize=16)
+plt.xlabel("Distance from Skytree (m)", fontsize=14)
+plt.ylabel("Viewing Angle (°)", fontsize=14)
+plt.legend(fontsize=12)
+plt.grid()
+
+# 複素数平面をプロット
+plt.subplot(1, 2, 2)
+plt.axhline(0, color='black', linewidth=0.5)  # 実軸
+plt.axvline(0, color='black', linewidth=0.5)  # 虚軸
+plt.quiver(0, 0, calculated_distance, height, angles='xy', scale_units='xy', scale=1, color="blue", label="Skytree")
+plt.scatter([observation_point.real], [observation_point.imag], color="red", label="Observation Point")
+plt.scatter([skytree_top.real], [skytree_top.imag], color="green", label="Skytree Top")
+plt.title("Complex Plane Representation", fontsize=16)
+plt.xlabel("Real (Horizontal Distance)", fontsize=14)
+plt.ylabel("Imaginary (Height)", fontsize=14)
+plt.legend(fontsize=12)
+plt.grid()
+plt.axis('equal')  # スケールを等しくする
+plt.show()
+
+# 計算結果を表示
+print(f"仰角 {target_angle}° のとき、観測地点からスカイツリーまでの水平距離は: {calculated_distance:.2f} m")
+print(f"複素数平面でのスカイツリーの頂点: {skytree_top}")
