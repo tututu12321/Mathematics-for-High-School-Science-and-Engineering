@@ -1,0 +1,95 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define functions and approximations
+def sqrt_approx(x):
+    return 1 + x / 2
+
+def sqrt_exact(x):
+    return np.sqrt(1 + x)
+
+def binomial_approx(x, n=1):
+    return 1 + n * x
+
+def binomial_exact(x, n=1):
+    return (1 + x)**n
+
+def power_approx(L, a):
+    return L**(1/2) * (1 + a / (2 * L))
+
+def power_exact(L, a):
+    return (L + a)**(1/2)
+
+def sin_approx(theta):
+    return theta
+
+def sin_exact(theta):
+    return np.sin(theta)
+
+def cos_approx(theta):
+    return np.ones_like(theta)
+
+def cos_exact(theta):
+    return np.cos(theta)
+
+# Values for x, L, a, and theta
+x = np.linspace(-0.5, 0.5, 500)
+L = 10
+a = np.linspace(-1, 1, 500)
+theta = np.linspace(-0.1, 0.1, 500)
+
+# Plot results
+plt.figure(figsize=(18, 12))
+
+# sqrt(1+x) approximation
+plt.subplot(2, 3, 1)
+plt.plot(x, sqrt_exact(x), label="Exact: sqrt(1+x)", color='blue')
+plt.plot(x, sqrt_approx(x), label="Approx: 1 + x/2", color='red', linestyle='--')
+plt.title("Approximation of sqrt(1+x)")
+plt.xlabel("x")
+plt.ylabel("Value")
+plt.legend()
+plt.grid()
+
+# (1+x)^n approximation
+plt.subplot(2, 3, 2)
+plt.plot(x, binomial_exact(x), label="Exact: (1+x)^n", color='blue')
+plt.plot(x, binomial_approx(x), label="Approx: 1 + nx", color='red', linestyle='--')
+plt.title("Approximation of (1+x)^n")
+plt.xlabel("x")
+plt.ylabel("Value")
+plt.legend()
+plt.grid()
+
+# (L+a)^(1/2) approximation
+plt.subplot(2, 3, 3)
+plt.plot(a, power_exact(L, a), label="Exact: (L+a)^(1/2)", color='blue')
+plt.plot(a, power_approx(L, a), label="Approx: L^(1/2)(1 + a/(2L))", color='red', linestyle='--')
+plt.title("Approximation of (L+a)^(1/2)")
+plt.xlabel("a")
+plt.ylabel("Value")
+plt.legend()
+plt.grid()
+
+# sin(theta) approximation
+plt.subplot(2, 3, 4)
+plt.plot(theta, sin_exact(theta), label="Exact: sin(theta)", color='blue')
+plt.plot(theta, sin_approx(theta), label="Approx: theta", color='red', linestyle='--')
+plt.title("Approximation of sin(theta)")
+plt.xlabel("theta")
+plt.ylabel("Value")
+plt.legend()
+plt.grid()
+
+# cos(theta) approximation
+plt.subplot(2, 3, 5)
+plt.plot(theta, cos_exact(theta), label="Exact: cos(theta)", color='blue')
+plt.plot(theta, cos_approx(theta), label="Approx: 1", color='red', linestyle='--')
+plt.title("Approximation of cos(theta)")
+plt.xlabel("theta")
+plt.ylabel("Value")
+plt.legend()
+plt.grid()
+
+plt.tight_layout()
+plt.show()
