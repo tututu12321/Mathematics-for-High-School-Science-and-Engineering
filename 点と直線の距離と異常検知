@@ -1,0 +1,60 @@
+# Re-create the necessary variables for plotting
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.ensemble import IsolationForest
+
+# Define data again
+np.random.seed(42)
+points = np.random.normal(loc=0, scale=1, size=(100, 2))  # Normal data
+outliers = np.array([[5, 5], [-5, -5], [3, -4]])  # Outliers
+data = np.vstack([points, outliers])  # Combine normal data and outliers
+
+# Line coefficients
+a, b, c = 1, -1, -1  # Line: x - y - 1 = 0
+
+# Distance function
+def calculate_distance(point, a, b, c):
+    x0, y0 = point
+    numerator = abs(a * x0 + b * y0 + c)
+    denominator = np.sqrt(a**2 + b**2)
+    return numerator / denominator
+
+# Calculate distances
+distances = np.array([calculate_distance(point, a, b, c) for point in data])
+
+# Isolation Forest for anomaly detection
+model = IsolationForest(contamination=0.05, random_state=42)
+predictions = model.fit_predict(data)
+
+# Separate normal and anomalous points
+normal_points = data[predictions == 1]
+anomalous_points = data[predictions == -1]
+
+# Define the line for plotting
+x = np.linspace(-6, 6, 100)
+y = (a * x + c) / -b  # y = -(ax + c)/b
+
+# Plotting
+plt.figure(figsize=(10, 6))
+
+# Plot normal points
+plt.scatter(normal_points[:, 0], normal_points[:, 1], color='blue', label='Normal Points')
+
+# Plot anomalous points
+plt.scatter(anomalous_points[:, 0], anomalous_points[:, 1], color='red', label='Anomalous Points')
+
+# Plot the line
+plt.plot(x, y, color='green', label='Line: x - y - 1 = 0')
+
+# Annotate distances
+for point, distance in zip(data, distances):
+    plt.text(point[0], point[1], f"{distance:.2f}", fontsize=8, color='purple')
+
+# Plot settings
+plt.title("Anomaly Detection with Point-Line Distances")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.legend()
+plt.grid()
+plt.show()
+
