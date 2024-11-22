@@ -1,0 +1,52 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数
+n = 1.0          # モル数
+R = 8.314        # 気体定数 (J/(mol*K))
+T = 300          # 温度 (K)
+gamma_mono = 5 / 3  # 単原子分子の比熱比
+gamma_dia = 7 / 5   # 二原子分子の比熱比
+p0 = 100000       # 初期圧力 (Pa)
+V0 = 0.01         # 初期体積 (m^3)
+
+# 体積の範囲
+V = np.linspace(0.005, 0.03, 500)  # 体積の範囲 (m³)
+
+# 圧力計算
+p_isothermal = p0 * V0 / V  # 等温変化: pV = 一定
+p_adiabatic_mono = p0 * (V0 / V) ** gamma_mono  # 単原子分子の断熱変化: pV^γ = 一定
+p_adiabatic_dia = p0 * (V0 / V) ** gamma_dia    # 二原子分子の断熱変化: pV^γ = 一定
+
+# 圧力の微分
+dpdV_isothermal = -p0 * V0 / V**2  # 等温変化の微分: dp/dV = -p0*V0 / V^2
+dpdV_adiabatic_mono = -gamma_mono * p0 * V0**gamma_mono * V**(-gamma_mono - 1)  # 単原子分子断熱変化
+dpdV_adiabatic_dia = -gamma_dia * p0 * V0**gamma_dia * V**(-gamma_dia - 1)      # 二原子分子断熱変化
+
+# プロット
+plt.figure(figsize=(12, 8))
+
+# 圧力のプロット
+plt.subplot(2, 1, 1)
+plt.plot(V, p_isothermal, label=r"Isothermal ($pV = \mathrm{const}$)", linestyle='-', color='blue')
+plt.plot(V, p_adiabatic_mono, label=r"Adiabatic Monoatomic ($pV^\gamma = \mathrm{const}, \gamma=5/3$)", linestyle='--', color='green')
+plt.plot(V, p_adiabatic_dia, label=r"Adiabatic Diatomic ($pV^\gamma = \mathrm{const}, \gamma=7/5$)", linestyle='-.', color='red')
+plt.title("Pressure-Volume Relationships")
+plt.xlabel("Volume $V$ [m³]")
+plt.ylabel("Pressure $p$ [Pa]")
+plt.legend()
+plt.grid()
+
+# 微分のプロット
+plt.subplot(2, 1, 2)
+plt.plot(V, dpdV_isothermal, label=r"$\frac{dp}{dV}$ Isothermal", linestyle='-', color='blue')
+plt.plot(V, dpdV_adiabatic_mono, label=r"$\frac{dp}{dV}$ Adiabatic Monoatomic", linestyle='--', color='green')
+plt.plot(V, dpdV_adiabatic_dia, label=r"$\frac{dp}{dV}$ Adiabatic Diatomic", linestyle='-.', color='red')
+plt.title("Derivatives of Pressure with Respect to Volume")
+plt.xlabel("Volume $V$ [m³]")
+plt.ylabel(r"$\frac{dp}{dV}$ [Pa/m³]")
+plt.legend()
+plt.grid()
+
+plt.tight_layout()
+plt.show()
