@@ -1,0 +1,129 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import scipy.stats as stats
+
+# Sample data: Current (I) in Amps and Voltage (V) in Volts (without noise)
+I = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])  # Current in Amps
+R_true = 10  # True resistance (slope) for generating ideal voltage
+V_ideal = R_true * I  # Ideal Voltage based on Ohm's Law
+
+# Add noise to the voltage data
+noise_std = 0.5  # Standard deviation of the noise
+V_noisy = V_ideal + np.random.normal(0, noise_std, size=I.shape)  # Noisy Voltage
+
+# Linear Regression using numpy
+# Add a column of ones to I for the intercept (b)
+I_b = np.c_[np.ones((I.shape[0], 1)), I]
+
+# Compute the optimal values for R (slope) and b (intercept)
+theta_best = np.linalg.inv(I_b.T.dot(I_b)).dot(I_b.T).dot(V_noisy)
+
+# Predict using the learned model (V = IR)
+V_pred = I_b.dot(theta_best)
+
+# Calculate residuals
+residuals = V_noisy - V_pred
+
+# Calculate Mean (I and V)
+mean_I = np.mean(I)
+mean_V = np.mean(V_noisy)
+
+# Calculate Variance (I and V)
+variance_I = np.var(I, ddof=1)  # ddof=1 for sample variance
+variance_V = np.var(V_noisy, ddof=1)
+
+# Calculate Mean Squared Error (MSE)
+mse = np.mean(residuals**2)
+
+# Calculate R^2 (coefficient of determination)
+ss_total = np.sum((V_noisy - mean_V)**2)
+ss_residual = np.sum(residuals**2)
+r_squared = 1 - (ss_residual / ss_total)
+
+# Calculate Standard Error of the Slope (R)
+se_R = np.sqrt(mse / np.sum((I - mean_I)**2))
+
+# Calculate Correlation Coefficient
+cov_I_V = np.sum((I - mean_I) * (V_noisy - mean_V)) / (len(I) - 1)
+std_I = np.std(I)
+std_V = np.std(V_noisy)
+correlation = cov_I_V / (std_I * std_V)
+
+# Calculate Leverage (h)
+H = I_b.dot(np.linalg.inv(I_b.T.dot(I_b))).dot(I_b.T)  # Hat matrix
+leverage = np.diag(H)
+
+# Calculate Cook's Distance
+cooks_distance = (residuals**2 / (mse * 2)) * (leverage / (1 - leverage)**2)
+
+# Plot the results
+plt.figure(figsize=(10, 8))
+
+# Plot 1: Actual vs Predicted (Fitted Line)
+plt.subplot(2, 2, 1)
+plt.scatter(I, V_noisy, color='blue', label='Noisy data')
+plt.plot(I, V_pred, color='red', label='Fitted line')
+plt.xlabel('Current (Amps)')
+plt.ylabel('Voltage (Volts)')
+plt.title('Ohm\'s Law Linear Regression with Noise')
+plt.legend()
+
+# Plot 2: Residual Plot (Residuals vs Fitted Values)
+plt.subplot(2, 2, 2)
+plt.scatter(V_pred, residuals, color='green')
+plt.axhline(y=0, color='black', linestyle='--')
+plt.xlabel('Fitted Values')
+plt.ylabel('Residuals')
+plt.title('Residual Plot')
+
+# Plot 3: Histogram of Residuals (Check for Normality)
+plt.subplot(2, 2, 3)
+sns.histplot(residuals, kde=True, color='purple')
+plt.xlabel('Residuals')
+plt.title('Histogram of Residuals')
+
+# Plot 4: Q-Q Plot (Check for Normality)
+plt.subplot(2, 2, 4)
+stats.probplot(residuals, dist="norm", plot=plt)
+plt.title('Q-Q Plot of Residuals')
+
+plt.tight_layout()
+plt.show()
+
+# Displaying the learned parameters
+R_estimated = theta_best[1]
+intercept = theta_best[0]
+
+# Outlier Detection: Identify points with large residuals
+outliers = np.where(np.abs(residuals) > 2 * np.std(residuals))[0]  # Threshold at 2 standard deviations
+outliers_I = I[outliers]
+outliers_V = V_noisy[outliers]
+
+# Displaying analysis results
+print(f"Estimated Resistance (R): {R_estimated} Ohms")
+print(f"Intercept (b): {intercept} Volts")
+print(f"Mean of Current (I): {mean_I}")
+print(f"Mean of Noisy Voltage (V): {mean_V}")
+print(f"Variance of Current (I): {variance_I}")
+print(f"Variance of Noisy Voltage (V): {variance_V}")
+print(f"Mean Squared Error (MSE): {mse}")
+print(f"R-squared: {r_squared}")
+print(f"Standard Error of Resistance (SE_R): {se_R}")
+print(f"Correlation Coefficient: {correlation}")
+
+# Display detected outliers
+if len(outliers) > 0:
+    print(f"Outliers detected at indices: {outliers}")
+    print(f"Outlier Current Values (I): {outliers_I}")
+    print(f"Outlier Voltage Values (V): {outliers_V}")
+else:
+    print("No outliers detected.")
+
+# Cook's Distance Analysis: Points with high Cook's Distance
+high_cooks_distance = np.where(cooks_distance > 4 / len(I))[0]  # Threshold at 4/n for Cook's Distance
+print(f"Data points with high Cook's distance: {high_cooks_distance}")
+
+# Leverage Analysis: Points with high leverage (threshold at 2*mean leverage)
+high_leverage = np.where(leverage > 2 * np.mean(leverage))[0]
+print(f"Data points with high leverage: {high_leverage}")
