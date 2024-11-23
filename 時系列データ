@@ -1,0 +1,48 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parameters
+time = np.linspace(0, 10, 1000)  # 1000 time points over 10 units
+frequency = 1  # Frequency for sine wave (periodic fluctuations)
+amplitude = 1  # Amplitude of the sine wave
+trend_slope = 0.1  # Slope of the long-term trend
+noise_level = 0.2  # Level of random noise (irregular fluctuations)
+
+# 1. Long-term trend (linear increase)
+trend = trend_slope * time
+
+# 2. Cyclical fluctuations (sine wave with low frequency)
+cyclical = 0.5 * np.sin(0.1 * time)  # Low frequency sine wave
+
+# 3. Seasonal fluctuations (sine wave with high frequency)
+seasonal = amplitude * np.sin(frequency * time)  # Standard sine wave
+
+# 4. Periodic fluctuations (sine wave with another frequency)
+periodic = amplitude * np.sin(2 * np.pi * frequency * time)  # Periodic component
+
+# 5. Irregular fluctuations (random noise)
+noise = noise_level * np.random.randn(len(time))  # Random noise
+
+# Combine all components to create the final time series
+time_series = trend + cyclical + seasonal + periodic + noise
+
+# Plotting the components
+plt.figure(figsize=(10, 6))
+
+# Plot individual components
+plt.subplot(2, 1, 1)
+plt.plot(time, trend, label='Trend', color='red')
+plt.plot(time, cyclical, label='Cyclical', color='orange')
+plt.plot(time, seasonal, label='Seasonal', color='green')
+plt.plot(time, periodic, label='Periodic', color='blue')
+plt.legend()
+plt.title('Individual Components')
+
+# Plot the combined time series
+plt.subplot(2, 1, 2)
+plt.plot(time, time_series, label='Time Series (Combined)', color='black')
+plt.legend()
+plt.title('Combined Time Series')
+
+plt.tight_layout()
+plt.show()
