@@ -1,0 +1,32 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 気温のデータ範囲を設定
+temperature = np.linspace(0, 35, 200)  # 気温 (℃)
+
+# 二次関数モデルを定義 (下に凸: a > 0)
+a, b, c = 0.1, -4, 50  # 二次関数の係数
+power_consumption = a * temperature**2 + b * temperature + c
+
+# ノイズを加える
+noise = np.random.normal(0, 2, size=temperature.shape)
+power_consumption_noisy = power_consumption + noise
+
+# プロット
+plt.figure(figsize=(10, 6))
+
+# データ点をプロット
+plt.scatter(temperature, power_consumption_noisy, color='gray', alpha=0.6, label="Noisy data")
+
+# 回帰曲線をプロット
+plt.plot(temperature, power_consumption, color='black', label="Quadratic Fit")
+
+# グラフのラベルとタイトル
+plt.xlabel("Temperature (℃)")
+plt.ylabel("Power Consumption (10^6 kW)")
+plt.title("Relationship Between Temperature and Power Consumption")
+plt.legend()
+plt.grid()
+
+# 表示
+plt.show()
