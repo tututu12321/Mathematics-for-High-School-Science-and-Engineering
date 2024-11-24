@@ -1,0 +1,121 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import matplotlib.pyplot as plt
+import numpy as np
+
+# ==== データセットの作成 ====
+np.random.seed(42)
+x = np.linspace(-10, 10, 500).reshape(-1, 1)  # 500個のデータポイント
+y = 2 * np.sin(x) + np.random.normal(0, 0.2, x.shape)  # 真の関数 + ノイズ
+
+# PyTorchのテンソルに変換
+x_tensor = torch.tensor(x, dtype=torch.float32, requires_grad=True)  # 勾配を計算可能に設定
+y_tensor = torch.tensor(y, dtype=torch.float32)
+
+# ==== モデルの定義（複雑化） ====
+class DeepNeuralNet(nn.Module):
+    def __init__(self):
+        super(DeepNeuralNet, self).__init__()
+        self.fc1 = nn.Linear(1, 128)  # 1入力、128出力（ノード数を増やす）
+        self.fc2 = nn.Linear(128, 128)
+        self.fc3 = nn.Linear(128, 128)
+        self.fc4 = nn.Linear(128, 1)  # 128入力、1出力
+        self.relu = nn.ReLU()
+        self.bn1 = nn.BatchNorm1d(128)  # バッチ正規化
+        self.bn2 = nn.BatchNorm1d(128)
+        self.bn3 = nn.BatchNorm1d(128)
+
+    def forward(self, x):
+        x = self.relu(self.bn1(self.fc1(x)))  # バッチ正規化後にReLU
+        x = self.relu(self.bn2(self.fc2(x)))
+        x = self.relu(self.bn3(self.fc3(x)))
+        x = self.fc4(x)
+        return x
+
+# モデルのインスタンス化
+model = DeepNeuralNet()
+
+# ==== 損失関数と最適化アルゴリズム（L2正則化を追加） ====
+criterion = nn.MSELoss()  # 平均二乗誤差
+optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)  # L2正則化（weight_decay）
+
+# ==== 学習 ====
+num_epochs = 5000  # エポック数を増加
+loss_history = []
+
+for epoch in range(num_epochs):
+    # 順伝播
+    predictions = model(x_tensor)
+    loss = criterion(predictions, y_tensor)
+
+    # 逆伝播と重みの更新
+    optimizer.zero_grad()  # 勾配の初期化
+    loss.backward()  # 勾配の計算
+    optimizer.step()  # 重みの更新
+
+    loss_history.append(loss.item())
+
+    if (epoch + 1) % 100 == 0:
+        print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.6f}")
+
+# ==== 結果の可視化 ====
+# 学習損失のプロット
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+plt.plot(range(num_epochs), loss_history, color='green')
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.title("Training Loss")
+plt.grid()
+
+# 入力データとモデルの予測値のプロット
+plt.subplot(1, 2, 2)
+plt.scatter(x, y, label="True Data", color="blue", alpha=0.5)
+y_pred = model(x_tensor).detach().numpy()
+plt.plot(x, y_pred, label="Model Prediction", color="red")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.title("True Function vs Model Prediction")
+plt.legend()
+plt.grid()
+
+plt.tight_layout()
+plt.show()
+
+# ==== 学習済みモデルのパラメータを表示 ====
+print("\nModel Parameters:")
+for name, param in model.named_parameters():
+    print(f"{name}: {param.data}")
+
+# ==== 自動微分を使用して勾配を計算 ====
+# モデルの予測値を取得
+y_pred = model(x_tensor)
+
+# y_predに対して勾配を計算（入力xに関して）
+y_pred.backward(torch.ones_like(y_pred))  # 勾配を計算するためには1で微分する必要があります
+
+# 勾配（dy/dx）
+gradient = x_tensor.grad
+
+# 入力データxと勾配（波形）のプロット
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+plt.plot(x, gradient.detach().numpy(), label="Gradient of y with respect to x", color="orange")
+plt.xlabel("x")
+plt.ylabel("dy/dx")
+plt.title("Gradient of the Model's Output")
+plt.grid()
+
+# 入力データとモデルの予測値（再表示）
+plt.subplot(1, 2, 2)
+plt.scatter(x, y, label="True Data", color="blue", alpha=0.5)
+plt.plot(x, y_pred.detach().numpy(), label="Model Prediction", color="red")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.title("True Function vs Model Prediction")
+plt.legend()
+plt.grid()
+
+plt.tight_layout()
+plt.show()
