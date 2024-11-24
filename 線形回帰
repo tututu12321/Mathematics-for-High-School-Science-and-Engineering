@@ -3,64 +3,67 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy.stats as stats
 
-# Sample data: Current (I) in Amps and Voltage (V) in Volts (without noise)
-I = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])  # Current in Amps
-R_true = 10  # True resistance (slope) for generating ideal voltage
-V_ideal = R_true * I  # Ideal Voltage based on Ohm's Law
+# シード値の設定（再現性のため）
+np.random.seed(42)
 
-# Add noise to the voltage data
-noise_std = 0.5  # Standard deviation of the noise
-V_noisy = V_ideal + np.random.normal(0, noise_std, size=I.shape)  # Noisy Voltage
+# サンプルデータ: 電流 (I) [Amps] と 電圧 (V) [Volts] （雑音なし）
+I = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])  # 電流 [A]
+R_true = 10  # 真の抵抗値 (スロープ)
+V_ideal = R_true * I  # オームの法則に基づく理想的な電圧
 
-# Linear Regression using numpy
-# Add a column of ones to I for the intercept (b)
+# 電圧データにノイズを追加
+noise_std = 0.5  # ノイズの標準偏差
+V_noisy = V_ideal + np.random.normal(0, noise_std, size=I.shape)  # ノイズ付き電圧
+
+# 線形回帰（最小二乗法）をnumpyで実行
+# 切片項を追加するためにIに1の列を追加
 I_b = np.c_[np.ones((I.shape[0], 1)), I]
 
-# Compute the optimal values for R (slope) and b (intercept)
+# 最適なR（スロープ）とb（切片）を計算
 theta_best = np.linalg.inv(I_b.T.dot(I_b)).dot(I_b.T).dot(V_noisy)
 
-# Predict using the learned model (V = IR)
+# 学習したモデルを用いて予測
 V_pred = I_b.dot(theta_best)
 
-# Calculate residuals
+# 残差の計算
 residuals = V_noisy - V_pred
 
-# Calculate Mean (I and V)
+# 平均値の計算
 mean_I = np.mean(I)
 mean_V = np.mean(V_noisy)
 
-# Calculate Variance (I and V)
-variance_I = np.var(I, ddof=1)  # ddof=1 for sample variance
+# 分散の計算
+variance_I = np.var(I, ddof=1)  # サンプル分散
 variance_V = np.var(V_noisy, ddof=1)
 
-# Calculate Mean Squared Error (MSE)
+# 平均二乗誤差 (MSE) の計算
 mse = np.mean(residuals**2)
 
-# Calculate R^2 (coefficient of determination)
+# 決定係数 (R^2) の計算
 ss_total = np.sum((V_noisy - mean_V)**2)
 ss_residual = np.sum(residuals**2)
 r_squared = 1 - (ss_residual / ss_total)
 
-# Calculate Standard Error of the Slope (R)
+# スロープ（R）の標準誤差の計算
 se_R = np.sqrt(mse / np.sum((I - mean_I)**2))
 
-# Calculate Correlation Coefficient
+# 相関係数の計算
 cov_I_V = np.sum((I - mean_I) * (V_noisy - mean_V)) / (len(I) - 1)
-std_I = np.std(I)
-std_V = np.std(V_noisy)
+std_I = np.std(I, ddof=1)
+std_V = np.std(V_noisy, ddof=1)
 correlation = cov_I_V / (std_I * std_V)
 
-# Calculate Leverage (h)
-H = I_b.dot(np.linalg.inv(I_b.T.dot(I_b))).dot(I_b.T)  # Hat matrix
+# レバレッジの計算
+H = I_b.dot(np.linalg.inv(I_b.T.dot(I_b))).dot(I_b.T)  # ハット行列
 leverage = np.diag(H)
 
-# Calculate Cook's Distance
+# クックの距離の計算
 cooks_distance = (residuals**2 / (mse * 2)) * (leverage / (1 - leverage)**2)
 
-# Plot the results
-plt.figure(figsize=(10, 8))
+# プロットの設定
+plt.figure(figsize=(12, 10))
 
-# Plot 1: Actual vs Predicted (Fitted Line)
+# プロット1: 実測値 vs 予測値（フィッティングライン）
 plt.subplot(2, 2, 1)
 plt.scatter(I, V_noisy, color='blue', label='Noisy data')
 plt.plot(I, V_pred, color='red', label='Fitted line')
@@ -68,62 +71,66 @@ plt.xlabel('Current (Amps)')
 plt.ylabel('Voltage (Volts)')
 plt.title('Ohm\'s Law Linear Regression with Noise')
 plt.legend()
+plt.grid()
 
-# Plot 2: Residual Plot (Residuals vs Fitted Values)
+# プロット2: 残差プロット（残差 vs 予測値）
 plt.subplot(2, 2, 2)
 plt.scatter(V_pred, residuals, color='green')
-plt.axhline(y=0, color='black', linestyle='--')
-plt.xlabel('Fitted Values')
-plt.ylabel('Residuals')
+plt.axhline(y=0, color='black', linestyle='--', linewidth=0.5)
+plt.xlabel('Fitted Values (Volts)')
+plt.ylabel('Residuals (Volts)')
 plt.title('Residual Plot')
+plt.grid()
 
-# Plot 3: Histogram of Residuals (Check for Normality)
+# プロット3: 残差のヒストグラム（正規性のチェック）
 plt.subplot(2, 2, 3)
 sns.histplot(residuals, kde=True, color='purple')
-plt.xlabel('Residuals')
+plt.xlabel('Residuals (Volts)')
 plt.title('Histogram of Residuals')
+plt.grid()
 
-# Plot 4: Q-Q Plot (Check for Normality)
+# プロット4: 残差のQ-Qプロット（正規性のチェック）
 plt.subplot(2, 2, 4)
 stats.probplot(residuals, dist="norm", plot=plt)
 plt.title('Q-Q Plot of Residuals')
+plt.grid()
 
 plt.tight_layout()
 plt.show()
 
-# Displaying the learned parameters
+# 学習したパラメータの表示
 R_estimated = theta_best[1]
 intercept = theta_best[0]
 
-# Outlier Detection: Identify points with large residuals
-outliers = np.where(np.abs(residuals) > 2 * np.std(residuals))[0]  # Threshold at 2 standard deviations
+# アウトライヤー検出: 大きな残差を持つ点の識別
+outliers = np.where(np.abs(residuals) > 2 * np.std(residuals))[0]  # 残差の2標準偏差を閾値に
 outliers_I = I[outliers]
 outliers_V = V_noisy[outliers]
 
-# Displaying analysis results
-print(f"Estimated Resistance (R): {R_estimated} Ohms")
-print(f"Intercept (b): {intercept} Volts")
-print(f"Mean of Current (I): {mean_I}")
-print(f"Mean of Noisy Voltage (V): {mean_V}")
-print(f"Variance of Current (I): {variance_I}")
-print(f"Variance of Noisy Voltage (V): {variance_V}")
-print(f"Mean Squared Error (MSE): {mse}")
-print(f"R-squared: {r_squared}")
-print(f"Standard Error of Resistance (SE_R): {se_R}")
-print(f"Correlation Coefficient: {correlation}")
+# 分析結果の表示
+print(f"Estimated Resistance (R): {R_estimated:.4f} Ohms")
+print(f"Intercept (b): {intercept:.4f} Volts")
+print(f"Mean of Current (I): {mean_I:.4f} A")
+print(f"Mean of Noisy Voltage (V): {mean_V:.4f} V")
+print(f"Variance of Current (I): {variance_I:.4f} A²")
+print(f"Variance of Noisy Voltage (V): {variance_V:.4f} V²")
+print(f"Mean Squared Error (MSE): {mse:.4f} V²")
+print(f"R-squared: {r_squared:.4f}")
+print(f"Standard Error of Resistance (SE_R): {se_R:.4f} Ohms")
+print(f"Correlation Coefficient: {correlation:.4f}")
 
-# Display detected outliers
+# アウトライヤーの表示
 if len(outliers) > 0:
-    print(f"Outliers detected at indices: {outliers}")
+    print(f"\nOutliers detected at indices: {outliers}")
     print(f"Outlier Current Values (I): {outliers_I}")
     print(f"Outlier Voltage Values (V): {outliers_V}")
 else:
-    print("No outliers detected.")
+    print("\nNo outliers detected.")
 
-# Cook's Distance Analysis: Points with high Cook's Distance
-high_cooks_distance = np.where(cooks_distance > 4 / len(I))[0]  # Threshold at 4/n for Cook's Distance
-print(f"Data points with high Cook's distance: {high_cooks_distance}")
+# クックの距離分析: クックの距離が高い点の検出
+high_cooks_distance = np.where(cooks_distance > 4 / len(I))[0]  # クックの距離の閾値: 4/n
+print(f"\nData points with high Cook's distance: {high_cooks_distance}")
 
-# Leverage Analysis: Points with high leverage (threshold at 2*mean leverage)
+# レバレッジ分析: 高いレバレッジを持つ点の検出（閾値: 2*平均レバレッジ）
 high_leverage = np.where(leverage > 2 * np.mean(leverage))[0]
 print(f"Data points with high leverage: {high_leverage}")
