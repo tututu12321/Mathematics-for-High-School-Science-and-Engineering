@@ -1,0 +1,65 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数設定
+V1 = 11  # 電圧1 (V)
+V2 = 1   # 電圧2 (V)
+mean_R1, mean_R2, mean_R3 = 3.0, 5.0, 2.0  # 抵抗の平均値 (Ω)
+std_R1, std_R2, std_R3 = 0.5, 0.7, 0.3  # 抵抗のばらつき (標準偏差)
+
+# ランダムなばらつきを持つ抵抗値を生成 (統計的ばらつき)
+np.random.seed(42)  # 再現性のためのシード値
+num_samples = 100  # シミュレーションのサンプル数
+R1_samples = np.random.normal(mean_R1, std_R1, num_samples)
+R2_samples = np.random.normal(mean_R2, std_R2, num_samples)
+R3_samples = np.random.normal(mean_R3, std_R3, num_samples)
+
+# 電流計算 (オームの法則に基づく線形方程式)
+I2_samples = np.zeros(num_samples)
+I3_samples = np.zeros(num_samples)
+
+for i in range(num_samples):
+    # 連立方程式の係数行列と定数ベクトル
+    A = np.array([[R2_samples[i], R3_samples[i]],
+                  [R1_samples[i], -R1_samples[i]]])
+    B = np.array([V1, V2])
+    
+    # 電流 (I2, I3) を解く
+    I2_samples[i], I3_samples[i] = np.linalg.solve(A, B)
+
+# プロット
+plt.figure(figsize=(12, 6))
+
+# 電流 I2 のヒストグラム
+plt.subplot(1, 2, 1)
+plt.hist(I2_samples, bins=20, color='blue', alpha=0.7, label='$I_2$ Distribution')
+plt.axvline(np.mean(I2_samples), color='red', linestyle='--', label='Mean $I_2$')
+plt.xlabel('Current $I_2$ (A)')
+plt.ylabel('Frequency')
+plt.title('Distribution of $I_2$ with Mean Line')
+plt.legend()
+plt.grid()
+
+# 電流 I3 のヒストグラム
+plt.subplot(1, 2, 2)
+plt.hist(I3_samples, bins=20, color='green', alpha=0.7, label='$I_3$ Distribution')
+plt.axvline(np.mean(I3_samples), color='red', linestyle='--', label='Mean $I_3$')
+plt.xlabel('Current $I_3$ (A)')
+plt.ylabel('Frequency')
+plt.title('Distribution of $I_3$ with Mean Line')
+plt.legend()
+plt.grid()
+
+plt.tight_layout()
+plt.show()
+
+# 平均値と標準偏差の表示
+mean_I2 = np.mean(I2_samples)
+mean_I3 = np.mean(I3_samples)
+std_I2 = np.std(I2_samples)
+std_I3 = np.std(I3_samples)
+
+print(f"Mean of $I_2$: {mean_I2:.4f} A")
+print(f"Standard Deviation of $I_2$: {std_I2:.4f} A")
+print(f"Mean of $I_3$: {mean_I3:.4f} A")
+print(f"Standard Deviation of $I_3$: {std_I3:.4f} A")
