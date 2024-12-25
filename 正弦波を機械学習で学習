@@ -1,0 +1,57 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from sklearn.model_selection import train_test_split
+
+# --- データ生成 ---
+# 正弦波データ
+X = np.linspace(0, 2 * np.pi, 1000).reshape(-1, 1)  # 入力データ
+y = np.sin(X)  # 出力データ (正弦波)
+
+# データをトレーニングセットとテストセットに分割
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# --- モデル構築 ---
+model = Sequential([
+    Dense(32, input_dim=1, activation='relu'),  # 隠れ層1
+    Dense(32, activation='relu'),              # 隠れ層2
+    Dense(1)                                   # 出力層
+])
+
+# モデルのコンパイル
+model.compile(optimizer='adam', loss='mse')
+
+# --- モデル学習 ---
+history = model.fit(X_train, y_train, epochs=100, batch_size=32, verbose=0, validation_split=0.2)
+
+# --- 評価 ---
+train_loss = model.evaluate(X_train, y_train, verbose=0)
+test_loss = model.evaluate(X_test, y_test, verbose=0)
+print(f"Train Loss: {train_loss:.4f}")
+print(f"Test Loss: {test_loss:.4f}")
+
+# --- 予測 ---
+y_pred = model.predict(X)
+
+# --- 結果プロット ---
+plt.figure(figsize=(10, 6))
+plt.plot(X, y, label="True Sine Wave", color="blue")
+plt.plot(X, y_pred, label="Predicted Sine Wave", color="red", linestyle="--")
+plt.title("Learning Sine Wave with Neural Network")
+plt.xlabel("X")
+plt.ylabel("sin(X)")
+plt.legend()
+plt.grid()
+plt.show()
+
+# --- 学習曲線のプロット ---
+plt.figure(figsize=(10, 6))
+plt.plot(history.history['loss'], label="Training Loss")
+plt.plot(history.history['val_loss'], label="Validation Loss")
+plt.title("Training and Validation Loss")
+plt.xlabel("Epochs")
+plt.ylabel("Loss")
+plt.legend()
+plt.grid()
+plt.show()
