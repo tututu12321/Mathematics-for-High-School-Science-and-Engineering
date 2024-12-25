@@ -1,0 +1,143 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+import tensorflow as tf
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense
+import torch
+import torch.nn as nn
+import xgboost as xgb
+from lightgbm import LGBMClassifier
+from catboost import CatBoostClassifier
+from transformers import pipeline
+
+# --- 1. scikit-learn: 線形回帰 ---
+def sklearn_example():
+    print("\n=== scikit-learn: 線形回帰 ===")
+    # データ生成
+    X = np.linspace(0, 10, 100).reshape(-1, 1)
+    y = 3 * X.ravel() + 7 + np.random.randn(100) * 2
+
+    # モデル作成とトレーニング
+    model = LinearRegression()
+    model.fit(X, y)
+    y_pred = model.predict(X)
+
+    # プロット
+    plt.figure()
+    plt.scatter(X, y, color='blue', label='Data')
+    plt.plot(X, y_pred, color='red', label='Prediction')
+    plt.title("scikit-learn: Linear Regression")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+# --- 2. TensorFlow/Keras: ニューラルネットワーク ---
+def tensorflow_example():
+    print("\n=== TensorFlow/Keras: ニューラルネットワーク ===")
+    # データ生成
+    X = np.linspace(0, 10, 100).reshape(-1, 1)
+    y = 3 * X.ravel() + 7 + np.random.randn(100) * 2
+
+    # モデル定義
+    model = Sequential([
+        Dense(10, input_dim=1, activation='relu'),
+        Dense(1)
+    ])
+    model.compile(optimizer='adam', loss='mse')
+
+    # モデルのトレーニング
+    model.fit(X, y, epochs=10, verbose=0)
+
+    # 予測
+    y_pred = model.predict(X)
+
+    # プロット
+    plt.figure()
+    plt.scatter(X, y, color='blue', label='Data')
+    plt.plot(X, y_pred, color='red', label='Prediction')
+    plt.title("TensorFlow/Keras: Neural Network")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+# --- 3. PyTorch: ニューラルネットワーク ---
+def pytorch_example():
+    print("\n=== PyTorch: ニューラルネットワーク ===")
+    # データ生成
+    X = torch.linspace(0, 10, 100).reshape(-1, 1)
+    y = 3 * X + 7 + torch.randn(100, 1) * 2
+
+    # モデル定義
+    class SimpleNN(nn.Module):
+        def __init__(self):
+            super(SimpleNN, self).__init__()
+            self.fc1 = nn.Linear(1, 10)
+            self.relu = nn.ReLU()
+            self.fc2 = nn.Linear(10, 1)
+
+        def forward(self, x):
+            x = self.relu(self.fc1(x))
+            x = self.fc2(x)
+            return x
+
+    model = SimpleNN()
+    criterion = nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+
+    # トレーニング
+    for epoch in range(100):
+        optimizer.zero_grad()
+        outputs = model(X)
+        loss = criterion(outputs, y)
+        loss.backward()
+        optimizer.step()
+
+    # 予測
+    y_pred = model(X).detach().numpy()
+
+    # プロット
+    plt.figure()
+    plt.scatter(X.numpy(), y.numpy(), color='blue', label='Data')
+    plt.plot(X.numpy(), y_pred, color='red', label='Prediction')
+    plt.title("PyTorch: Neural Network")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+# --- 4. XGBoost, LightGBM, CatBoost: 分類 ---
+def boosting_examples():
+    print("\n=== XGBoost, LightGBM, CatBoost: 分類 ===")
+    # データ生成
+    from sklearn.datasets import make_classification
+    X, y = make_classification(n_samples=200, n_features=10, random_state=42)
+
+    # XGBoost
+    xgb_model = xgb.XGBClassifier()
+    xgb_model.fit(X, y)
+    print("XGBoost accuracy:", xgb_model.score(X, y))
+
+    # LightGBM
+    lgb_model = LGBMClassifier()
+    lgb_model.fit(X, y)
+    print("LightGBM accuracy:", lgb_model.score(X, y))
+
+    # CatBoost
+    cat_model = CatBoostClassifier(verbose=0)
+    cat_model.fit(X, y)
+    print("CatBoost accuracy:", cat_model.score(X, y))
+
+# --- 5. Hugging Face Transformers: 自然言語処理 ---
+def huggingface_example():
+    print("\n=== Hugging Face Transformers: 自然言語処理 ===")
+    # Sentiment analysis パイプライン
+    classifier = pipeline("sentiment-analysis")
+    result = classifier("I love machine learning and AI!")
+    print("Sentiment Analysis Result:", result)
+
+# --- 実行 ---
+sklearn_example()
+tensorflow_example()
+pytorch_example()
+boosting_examples()
+huggingface_example()
