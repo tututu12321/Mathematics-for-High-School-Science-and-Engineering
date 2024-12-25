@@ -1,0 +1,26 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数の設定
+L = 1.0  # 距離 L (m)
+d = 0.01  # スリット間隔 d (m)
+x = np.linspace(-0.05, 0.05, 500)  # x の範囲 (-5cm から +5cm)
+
+# APとBPの計算
+AP = np.sqrt(L**2 + (x + d / 2)**2)
+BP = np.sqrt(L**2 + (x - d / 2)**2)
+
+# 差の計算
+delta = AP - BP
+
+# プロット
+plt.figure(figsize=(10, 6))
+plt.plot(x, delta, label=r"$AP - BP = \frac{dx}{L}$", color="blue")
+plt.title("Difference between AP and BP", fontsize=14)
+plt.xlabel("x (m)", fontsize=12)
+plt.ylabel("Difference (m)", fontsize=12)
+plt.axhline(0, color="black", linewidth=0.5, linestyle="--")
+plt.axvline(0, color="black", linewidth=0.5, linestyle="--")
+plt.grid(True)
+plt.legend(fontsize=10)
+plt.show()
