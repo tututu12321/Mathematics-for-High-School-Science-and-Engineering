@@ -1,0 +1,112 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.cluster import KMeans
+import random
+
+# --- 教師あり学習 (回帰) ---
+def supervised_learning_example():
+    print("\n=== 教師あり学習: 回帰 ===")
+    # データ生成
+    X = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)  # 入力データ (特徴量)
+    y = np.array([2.2, 4.0, 6.1, 7.8, 10.2])    # ラベル (目標値)
+
+    # 線形回帰モデルの作成と学習
+    model = LinearRegression()
+    model.fit(X, y)
+
+    # 予測
+    X_test = np.array([6, 7, 8]).reshape(-1, 1)
+    predictions = model.predict(X_test)
+    print(f"予測結果: {predictions}")
+
+    # プロット
+    plt.figure(figsize=(8, 5))
+    plt.scatter(X, y, color='blue', label='Training Data')
+    plt.plot(X_test, predictions, color='red', label='Predictions')
+    plt.title("Supervised Learning: Linear Regression")
+    plt.xlabel("X")
+    plt.ylabel("y")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+# --- 教師なし学習 (クラスタリング) ---
+def unsupervised_learning_example():
+    print("\n=== 教師なし学習: クラスタリング ===")
+    # データ生成
+    np.random.seed(42)
+    X = np.random.rand(50, 2)  # 2次元データ
+
+    # k-meansクラスタリング
+    kmeans = KMeans(n_clusters=3, random_state=42)
+    kmeans.fit(X)
+    labels = kmeans.labels_
+    centroids = kmeans.cluster_centers_
+    print(f"クラスタリングの中心: {centroids}")
+
+    # プロット
+    plt.figure(figsize=(8, 5))
+    plt.scatter(X[:, 0], X[:, 1], c=labels, cmap='viridis', label="Data Points")
+    plt.scatter(centroids[:, 0], centroids[:, 1], s=200, c='red', label="Centroids")
+    plt.title("Unsupervised Learning: K-Means Clustering")
+    plt.xlabel("Feature 1")
+    plt.ylabel("Feature 2")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+# --- 強化学習 (簡単な迷路問題) ---
+def reinforcement_learning_example():
+    print("\n=== 強化学習: 簡単な迷路問題 ===")
+    # 環境の定義
+    maze = np.array([
+        [0, -1, 0, 0],
+        [0, -1, 0, -1],
+        [0,  0, 0, 10]  # ゴールは報酬10
+    ])
+    start_position = (0, 0)
+    actions = ["up", "down", "left", "right"]
+
+    # エージェントの設定
+    position = start_position
+    rewards = []
+    steps = 20  # 最大ステップ数
+
+    for step in range(steps):
+        action = random.choice(actions)  # ランダムに動く
+        new_position = position
+        if action == "up" and position[0] > 0:
+            new_position = (position[0] - 1, position[1])
+        elif action == "down" and position[0] < maze.shape[0] - 1:
+            new_position = (position[0] + 1, position[1])
+        elif action == "left" and position[1] > 0:
+            new_position = (position[0], position[1] - 1)
+        elif action == "right" and position[1] < maze.shape[1] - 1:
+            new_position = (position[0], position[1] + 1)
+
+        # 状態更新
+        position = new_position
+        reward = maze[position]
+        rewards.append(reward)
+
+        print(f"Step {step + 1}: Action = {action}, Position = {position}, Reward = {reward}")
+
+        if reward == 10:  # ゴールに到達
+            print("Goal reached!")
+            break
+
+    # 報酬のプロット
+    plt.figure(figsize=(8, 5))
+    plt.plot(rewards, label="Reward per Step")
+    plt.title("Reinforcement Learning: Maze Problem")
+    plt.xlabel("Step")
+    plt.ylabel("Reward")
+    plt.grid()
+    plt.legend()
+    plt.show()
+
+# --- 実行 ---
+supervised_learning_example()
+unsupervised_learning_example()
+reinforcement_learning_example()
