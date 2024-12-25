@@ -1,0 +1,129 @@
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten, Conv2D, LSTM
+from tensorflow.keras.datasets import mnist, cifar10
+from tensorflow.keras.utils import to_categorical
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+from transformers import pipeline
+import gym
+
+# --- 1. 画像分類 (MNIST, CIFAR-10) ---
+def image_classification():
+    print("\n=== 画像分類: MNIST と CIFAR-10 ===")
+    
+    # MNISTデータセット
+    (mnist_x_train, mnist_y_train), (mnist_x_test, mnist_y_test) = mnist.load_data()
+    mnist_x_train = mnist_x_train.reshape(-1, 28, 28, 1) / 255.0
+    mnist_x_test = mnist_x_test.reshape(-1, 28, 28, 1) / 255.0
+    mnist_y_train = to_categorical(mnist_y_train, 10)
+    mnist_y_test = to_categorical(mnist_y_test, 10)
+
+    # CIFAR-10データセット
+    (cifar_x_train, cifar_y_train), (cifar_x_test, cifar_y_test) = cifar10.load_data()
+    cifar_x_train = cifar_x_train / 255.0
+    cifar_x_test = cifar_x_test / 255.0
+    cifar_y_train = to_categorical(cifar_y_train, 10)
+    cifar_y_test = to_categorical(cifar_y_test, 10)
+
+    # MNIST用モデル
+    mnist_model = Sequential([
+        Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(28, 28, 1)),
+        Flatten(),
+        Dense(128, activation='relu'),
+        Dense(10, activation='softmax')
+    ])
+    mnist_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    mnist_model.fit(mnist_x_train, mnist_y_train, epochs=3, verbose=1)
+
+    # CIFAR-10用モデル
+    cifar_model = Sequential([
+        Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(32, 32, 3)),
+        Flatten(),
+        Dense(128, activation='relu'),
+        Dense(10, activation='softmax')
+    ])
+    cifar_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    cifar_model.fit(cifar_x_train, cifar_y_train, epochs=3, verbose=1)
+
+    # 評価
+    mnist_accuracy = mnist_model.evaluate(mnist_x_test, mnist_y_test, verbose=0)[1]
+    cifar_accuracy = cifar_model.evaluate(cifar_x_test, cifar_y_test, verbose=0)[1]
+    print(f"MNIST Test Accuracy: {mnist_accuracy:.2f}")
+    print(f"CIFAR-10 Test Accuracy: {cifar_accuracy:.2f}")
+
+# --- 2. テキスト分類 (感情分析) ---
+def text_classification():
+    print("\n=== テキスト分類: 感情分析 ===")
+    classifier = pipeline("sentiment-analysis")
+    text = "I love programming with Python. It's amazing!"
+    result = classifier(text)
+    print(f"Input Text: {text}")
+    print(f"Sentiment Analysis Result: {result}")
+
+# --- 3. 時系列予測 (株価予測) ---
+def time_series_forecasting():
+    print("\n=== 時系列予測: 株価予測 ===")
+
+    # データ生成
+    X = np.linspace(0, 100, 1000)
+    y = np.sin(X / 10) + np.random.normal(scale=0.1, size=1000)
+
+    # 時系列データ準備
+    seq_length = 20
+    X_seq, y_seq = [], []
+    for i in range(len(X) - seq_length):
+        X_seq.append(y[i:i + seq_length])
+        y_seq.append(y[i + seq_length])
+    X_seq = np.array(X_seq).reshape(-1, seq_length, 1)
+    y_seq = np.array(y_seq)
+
+    # モデル定義
+    model = Sequential([
+        LSTM(50, activation='relu', input_shape=(seq_length, 1)),
+        Dense(1)
+    ])
+    model.compile(optimizer='adam', loss='mse')
+    model.fit(X_seq, y_seq, epochs=10, verbose=1)
+
+    # 予測
+    y_pred = model.predict(X_seq)
+
+    # プロット
+    plt.figure()
+    plt.plot(y_seq, label="True")
+    plt.plot(y_pred, label="LSTM Prediction")
+    plt.legend()
+    plt.title("Time Series Forecasting")
+    plt.show()
+
+# --- 4. 強化学習 (ゲームAI) ---
+def reinforcement_learning():
+    print("\n=== 強化学習: ゲームAI ===")
+
+    # 環境作成
+    env = gym.make("CartPole-v1")
+    state = env.reset()
+    total_rewards = 0
+
+    for episode in range(5):  # 5エピソード
+        state = env.reset()
+        for t in range(200):  # 最大200ステップ
+            env.render()
+            action = env.action_space.sample()  # ランダムなアクション
+            state, reward, done, _ = env.step(action)
+            total_rewards += reward
+            if done:
+                print(f"Episode {episode + 1} finished after {t + 1} timesteps")
+                break
+
+    env.close()
+    print(f"Total Rewards: {total_rewards}")
+
+# --- 実行 ---
+image_classification()
+text_classification()
+time_series_forecasting()
+reinforcement_learning()
