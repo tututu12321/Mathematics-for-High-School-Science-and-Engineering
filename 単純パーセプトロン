@@ -1,0 +1,28 @@
+import numpy as np
+
+# 入力データ (x1, x2, x3)
+X = np.array([1.0, 2.0, 3.0])  # 入力例
+
+# 重み (w1, w2, w3)
+weights = np.array([0.5, -0.6, 0.1])  # 重み例
+
+# バイアス (b)
+bias = 0.2
+
+# 活性化関数 (f: ステップ関数)
+def activation_function(z):
+    """ステップ関数"""
+    return 1 if z >= 0 else 0
+
+# 線形結合の計算 (weighted sum)
+z = np.dot(X, weights) + bias
+
+# 出力 (y) の計算
+y = activation_function(z)
+
+# 結果の出力
+print(f"Inputs: {X}")
+print(f"Weights: {weights}")
+print(f"Bias: {bias}")
+print(f"Weighted Sum (z): {z}")
+print(f"Output (y): {y}")
