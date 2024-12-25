@@ -1,0 +1,78 @@
+import numpy as np
+
+# 1. 指数計算
+def exponential_calculation(base, exponent):
+    result = base ** exponent
+    print(f"Exponentiation: {base}^{exponent} = {result}")
+    return result
+
+# 2. 有効数字の処理
+def significant_figures(value, sig_digits):
+    result = round(value, sig_digits - int(np.floor(np.log10(abs(value)))) - 1)
+    print(f"Value with {sig_digits} significant figures: {result}")
+    return result
+
+# 3. 測定値の平均
+def calculate_mean(measurements):
+    mean_value = np.mean(measurements)
+    print(f"Mean of measurements {measurements}: {mean_value}")
+    return mean_value
+
+# 4. 三角比
+def calculate_trig_ratios(angle):
+    rad = np.radians(angle)
+    sin_val = np.sin(rad)
+    cos_val = np.cos(rad)
+    tan_val = np.tan(rad)
+    print(f"Trig Ratios for {angle}°: sin = {sin_val}, cos = {cos_val}, tan = {tan_val}")
+    return sin_val, cos_val, tan_val
+
+# 5. ベクトルの和、差、分解
+def vector_operations(v1, v2):
+    v_add = np.add(v1, v2)
+    v_sub = np.subtract(v1, v2)
+    print(f"Vector Addition: {v1} + {v2} = {v_add}")
+    print(f"Vector Subtraction: {v1} - {v2} = {v_sub}")
+    return v_add, v_sub
+
+# 6. 加法定理
+def addition_theorem(angle1, angle2):
+    rad1 = np.radians(angle1)
+    rad2 = np.radians(angle2)
+    sin_sum = np.sin(rad1) * np.cos(rad2) + np.cos(rad1) * np.sin(rad2)
+    cos_sum = np.cos(rad1) * np.cos(rad2) - np.sin(rad1) * np.sin(rad2)
+    print(f"Addition Theorem: sin({angle1}° + {angle2}°) = {sin_sum}")
+    print(f"Addition Theorem: cos({angle1}° + {angle2}°) = {cos_sum}")
+    return sin_sum, cos_sum
+
+# 7. 積和の公式
+def product_to_sum(a, b):
+    rad_a = np.radians(a)
+    rad_b = np.radians(b)
+    prod_sin_cos = np.sin(rad_a) * np.cos(rad_b)
+    prod_sum = 0.5 * (np.sin(rad_a + rad_b) + np.sin(rad_a - rad_b))
+    print(f"Product-to-Sum Formula: sin({a}°)cos({b}°) = {prod_sin_cos} = {prod_sum}")
+    return prod_sum
+
+# --- Example Usage ---
+if __name__ == "__main__":
+    print("=== 1. Exponentiation ===")
+    exponential_calculation(2, 3)
+
+    print("\n=== 2. Significant Figures ===")
+    significant_figures(123.456, 3)
+
+    print("\n=== 3. Mean Calculation ===")
+    calculate_mean([10.1, 10.2, 10.3, 10.4])
+
+    print("\n=== 4. Trigonometric Ratios ===")
+    calculate_trig_ratios(45)
+
+    print("\n=== 5. Vector Operations ===")
+    vector_operations([1, 2, 3], [-1, 0, 4])
+
+    print("\n=== 6. Addition Theorem ===")
+    addition_theorem(30, 60)
+
+    print("\n=== 7. Product-to-Sum Formula ===")
+    product_to_sum(45, 30)
