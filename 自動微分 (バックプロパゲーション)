@@ -1,0 +1,35 @@
+import torch
+
+# 1. 入力データとパラメータの初期化
+x = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)  # 入力データ (勾配計算可能)
+w = torch.tensor([0.5, -0.3, 0.8], requires_grad=True)  # 重み
+b = torch.tensor(0.5, requires_grad=True)  # バイアス
+
+# 2. 順伝播: 線形変換 + 活性化関数
+y = torch.sum(w * x) + b  # y = w1*x1 + w2*x2 + w3*x3 + b
+loss = y**2  # 損失関数 (二乗誤差)
+
+# 3. 自動微分 (バックプロパゲーション)
+loss.backward()  # 勾配を計算
+
+# 4. 勾配の表示
+print("Gradients:")
+print(f"∂loss/∂x: {x.grad}")  # x に対する損失関数の勾配
+print(f"∂loss/∂w: {w.grad}")  # w に対する損失関数の勾配
+print(f"∂loss/∂b: {b.grad}")  # b に対する損失関数の勾配
+
+# 5. 重みの更新 (簡単な勾配降下法)
+learning_rate = 0.1
+with torch.no_grad():  # 自動微分を無効化して更新
+    w -= learning_rate * w.grad
+    b -= learning_rate * b.grad
+
+# 6. 更新後の値を表示
+print("\nUpdated parameters:")
+print(f"w: {w}")
+print(f"b: {b}")
+
+# 勾配のリセット
+x.grad.zero_()
+w.grad.zero_()
+b.grad.zero_()
