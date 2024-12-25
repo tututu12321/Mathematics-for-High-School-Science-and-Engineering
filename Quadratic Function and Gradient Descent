@@ -1,0 +1,74 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 二次関数の係数
+a = 1    # 二次の係数
+b = -4   # 一次の係数
+c = 5    # 定数項
+
+# 二次関数
+def quadratic(x):
+    return a * x**2 + b * x + c
+
+# 勾配（微分）
+def gradient(x):
+    return 2 * a * x + b  # f'(x) = 2ax + b
+
+# 頂点計算
+def calculate_vertex(a, b, c):
+    h = -b / (2 * a)  # 頂点のx座標
+    k = quadratic(h)  # 頂点のy座標
+    return h, k
+
+# 勾配降下法の実装
+def gradient_descent(initial_x, learning_rate, tolerance, max_iterations):
+    x = initial_x
+    path = [x]  # 勾配降下法の経路
+    for _ in range(max_iterations):
+        grad = gradient(x)
+        new_x = x - learning_rate * grad
+        path.append(new_x)
+        if abs(new_x - x) < tolerance:  # 収束判定
+            break
+        x = new_x
+    return new_x, path
+
+# グラフプロットと勾配降下法の結果表示
+def plot_quadratic_and_gradient(a, b, c, initial_x, learning_rate, tolerance, max_iterations):
+    # 頂点の計算
+    h, k = calculate_vertex(a, b, c)
+
+    # 勾配降下法の実行
+    minimum_x, path = gradient_descent(initial_x, learning_rate, tolerance, max_iterations)
+    minimum_y = quadratic(minimum_x)
+
+    # 二次関数の範囲と値
+    x = np.linspace(-2, 6, 500)
+    y = quadratic(x)
+
+    # プロット
+    plt.figure(figsize=(10, 6))
+    plt.plot(x, y, label=r"$f(x) = ax^2 + bx + c$", color="blue")
+    plt.scatter(h, k, color="red", label=f"Vertex (h, k): ({h:.2f}, {k:.2f})")
+    plt.plot(path, quadratic(np.array(path)), 'o-', label="Gradient Descent Path", color="green")
+    plt.title("Quadratic Function and Gradient Descent", fontsize=14)
+    plt.xlabel("x", fontsize=12)
+    plt.ylabel("f(x)", fontsize=12)
+    plt.axhline(0, color="black", linewidth=0.5, linestyle="--")
+    plt.axvline(0, color="black", linewidth=0.5, linestyle="--")
+    plt.grid(True)
+    plt.legend(fontsize=10)
+    plt.show()
+
+    # 結果表示
+    print(f"Theoretical Vertex: (h, k) = ({h:.2f}, {k:.2f})")
+    print(f"Gradient Descent Result: x = {minimum_x:.2f}, f(x) = {minimum_y:.2f}")
+
+# パラメータ設定
+initial_x = 5         # 勾配降下法の初期値
+learning_rate = 0.1   # 学習率
+tolerance = 1e-6      # 収束基準
+max_iterations = 1000 # 最大反復回数
+
+# 実行
+plot_quadratic_and_gradient(a, b, c, initial_x, learning_rate, tolerance, max_iterations)
