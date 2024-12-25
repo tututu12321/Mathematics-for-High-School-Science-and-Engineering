@@ -1,0 +1,97 @@
+import numpy as np
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.optimizers import Adam
+
+# --- 半加算器のデータ ---
+def half_adder_data():
+    # 入力データ (A, B)
+    X = np.array([
+        [0, 0],
+        [0, 1],
+        [1, 0],
+        [1, 1]
+    ])
+    # 出力データ (Sum, Carry)
+    y = np.array([
+        [0, 0],  # 0 + 0 = 0 (Sum = 0, Carry = 0)
+        [1, 0],  # 0 + 1 = 1 (Sum = 1, Carry = 0)
+        [1, 0],  # 1 + 0 = 1 (Sum = 1, Carry = 0)
+        [0, 1]   # 1 + 1 = 10 (Sum = 0, Carry = 1)
+    ])
+    return X, y
+
+# --- 全加算器のデータ ---
+def full_adder_data():
+    # 入力データ (A, B, Cin)
+    X = np.array([
+        [0, 0, 0],
+        [0, 0, 1],
+        [0, 1, 0],
+        [0, 1, 1],
+        [1, 0, 0],
+        [1, 0, 1],
+        [1, 1, 0],
+        [1, 1, 1]
+    ])
+    # 出力データ (Sum, Carry)
+    y = np.array([
+        [0, 0],  # 0 + 0 + 0 = 0 (Sum = 0, Carry = 0)
+        [1, 0],  # 0 + 0 + 1 = 1 (Sum = 1, Carry = 0)
+        [1, 0],  # 0 + 1 + 0 = 1 (Sum = 1, Carry = 0)
+        [0, 1],  # 0 + 1 + 1 = 10 (Sum = 0, Carry = 1)
+        [1, 0],  # 1 + 0 + 0 = 1 (Sum = 1, Carry = 0)
+        [0, 1],  # 1 + 0 + 1 = 10 (Sum = 0, Carry = 1)
+        [0, 1],  # 1 + 1 + 0 = 10 (Sum = 0, Carry = 1)
+        [1, 1]   # 1 + 1 + 1 = 11 (Sum = 1, Carry = 1)
+    ])
+    return X, y
+
+# --- DFFのデータ ---
+def dff_data():
+    # 入力データ (D, Clock)
+    X = np.array([
+        [0, 0],
+        [0, 1],
+        [1, 0],
+        [1, 1]
+    ])
+    # 出力データ (Q)
+    y = np.array([
+        [0],  # No change (Clock = 0)
+        [0],  # Load D into Q (Clock = 1)
+        [0],  # No change (Clock = 0)
+        [1]   # Load D into Q (Clock = 1)
+    ])
+    return X, y
+
+# --- モデルの構築と学習 ---
+def train_model(X, y, input_dim, output_dim):
+    model = Sequential([
+        Dense(10, input_dim=input_dim, activation='relu'),
+        Dense(output_dim, activation='sigmoid')
+    ])
+    model.compile(optimizer=Adam(learning_rate=0.01), loss='binary_crossentropy', metrics=['accuracy'])
+    model.fit(X, y, epochs=100, verbose=0)
+    return model
+
+# --- 半加算器の学習 ---
+X_half, y_half = half_adder_data()
+model_half = train_model(X_half, y_half, input_dim=2, output_dim=2)
+print("Half Adder Accuracy:", model_half.evaluate(X_half, y_half, verbose=0)[1])
+
+# --- 全加算器の学習 ---
+X_full, y_full = full_adder_data()
+model_full = train_model(X_full, y_full, input_dim=3, output_dim=2)
+print("Full Adder Accuracy:", model_full.evaluate(X_full, y_full, verbose=0)[1])
+
+# --- DFFの学習 ---
+X_dff, y_dff = dff_data()
+model_dff = train_model(X_dff, y_dff, input_dim=2, output_dim=1)
+print("DFF Accuracy:", model_dff.evaluate(X_dff, y_dff, verbose=0)[1])
+
+# --- 予測の例 ---
+print("\nHalf Adder Prediction (Input [1, 1]):", model_half.predict(np.array([[1, 1]])))
+print("Full Adder Prediction (Input [1, 1, 1]):", model_full.predict(np.array([[1, 1, 1]])))
+print("DFF Prediction (Input [1, 1]):", model_dff.predict(np.array([[1, 1]])))
