@@ -1,0 +1,121 @@
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, LSTM, GRU
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.utils import to_categorical
+from sklearn.preprocessing import MinMaxScaler
+from transformers import pipeline
+
+# --- 1. ニューラルネットワークの構造 (単純な回帰モデル) ---
+def basic_nn():
+    print("\n=== ニューラルネットワーク: 基本構造 ===")
+
+    # データ生成
+    X = np.linspace(0, 10, 100).reshape(-1, 1)
+    y = 3 * X + 7 + np.random.randn(100, 1) * 2
+
+    # データスケーリング
+    scaler = MinMaxScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # モデル定義
+    model = Sequential([
+        Dense(10, input_dim=1, activation='relu'),
+        Dense(1)
+    ])
+    model.compile(optimizer='adam', loss='mse')
+    model.fit(X_scaled, y, epochs=50, verbose=0)
+
+    # 予測
+    y_pred = model.predict(X_scaled)
+
+    # プロット
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.scatter(X, y, color='blue', label='Data')
+    plt.plot(X, y_pred, color='red', label='Prediction')
+    plt.title("Basic Neural Network: Regression")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+# --- 2. 畳み込みニューラルネットワーク (CNN: MNIST画像分類) ---
+def cnn_example():
+    print("\n=== 畳み込みニューラルネットワーク (CNN) ===")
+
+    # データ準備
+    (X_train, y_train), (X_test, y_test) = mnist.load_data()
+    X_train = X_train.reshape(-1, 28, 28, 1) / 255.0
+    X_test = X_test.reshape(-1, 28, 28, 1) / 255.0
+    y_train = to_categorical(y_train, 10)
+    y_test = to_categorical(y_test, 10)
+
+    # モデル定義
+    model = Sequential([
+        Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(28, 28, 1)),
+        Flatten(),
+        Dense(128, activation='relu'),
+        Dense(10, activation='softmax')
+    ])
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    model.fit(X_train, y_train, epochs=3, verbose=1)
+
+    # 評価
+    loss, accuracy = model.evaluate(X_test, y_test, verbose=0)
+    print(f"Test Accuracy: {accuracy:.2f}")
+
+# --- 3. リカレントニューラルネットワーク (LSTMとGRU) ---
+def rnn_example():
+    print("\n=== リカレントニューラルネットワーク (LSTM/GRU) ===")
+
+    # データ生成
+    X = np.linspace(0, 100, 1000)
+    y = np.sin(X / 10)
+
+    # データ準備
+    seq_length = 20
+    X_seq, y_seq = [], []
+    for i in range(len(X) - seq_length):
+        X_seq.append(y[i:i + seq_length])
+        y_seq.append(y[i + seq_length])
+    X_seq = np.array(X_seq).reshape(-1, seq_length, 1)
+    y_seq = np.array(y_seq)
+
+    # モデル定義 (LSTM)
+    lstm_model = Sequential([
+        LSTM(50, activation='relu', input_shape=(seq_length, 1)),
+        Dense(1)
+    ])
+    lstm_model.compile(optimizer='adam', loss='mse')
+    lstm_model.fit(X_seq, y_seq, epochs=10, verbose=1)
+
+    # 予測
+    y_pred = lstm_model.predict(X_seq)
+
+    # プロット
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.plot(y_seq, label="True")
+    plt.plot(y_pred, label="LSTM Prediction")
+    plt.legend()
+    plt.title("Recurrent Neural Network: LSTM")
+    plt.show()
+
+# --- 4. トランスフォーマーモデル (BERT/GPT) ---
+def transformer_example():
+    print("\n=== トランスフォーマーモデル (BERT/GPT) ===")
+
+    # Hugging Face Transformersパイプライン
+    summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+    text = ("Deep learning is a subset of machine learning that uses neural networks with many layers. "
+            "It is used for tasks like image recognition, natural language processing, and more.")
+    summary = summarizer(text, max_length=50, min_length=10, do_sample=False)
+    print("Input Text:\n", text)
+    print("\nSummarized Text:\n", summary[0]['summary_text'])
+
+# --- 実行 ---
+basic_nn()
+cnn_example()
+rnn_example()
+transformer_example()
