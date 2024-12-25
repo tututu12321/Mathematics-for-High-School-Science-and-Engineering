@@ -1,0 +1,61 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# NAND回路の出力を定義
+def nand_gate(input1, input2, threshold=0.5):
+    """
+    アナログ入力信号に基づくNAND回路の出力。
+    
+    :param input1: 入力信号1 (0～1 の範囲)
+    :param input2: 入力信号2 (0～1 の範囲)
+    :param threshold: NAND動作のしきい値 (デフォルトは0.5)
+    :return: NAND出力信号
+    """
+    # アナログNAND回路出力: 入力の積に対する補数
+    combined_signal = input1 * input2
+    output = 1 - combined_signal  # NANDの基本動作
+    output[combined_signal >= threshold] = 0  # しきい値によるスイッチング
+    return output
+
+# 時間軸の設定
+time = np.linspace(0, 1, 1000)  # 0～1秒を1000点で分割
+
+# アナログ入力信号の設定 (正弦波)
+input1 = 0.8 * np.sin(2 * np.pi * 10 * time) + 0.5  # 振幅を正規化 (0～1)
+input2 = 0.6 * np.sin(2 * np.pi * 10 * time + np.pi / 3) + 0.5  # 位相差: π/3
+
+# NAND回路の出力信号を計算
+output = nand_gate(input1, input2)
+
+# プロット
+plt.figure(figsize=(12, 8))
+
+# 入力1のプロット
+plt.subplot(3, 1, 1)
+plt.plot(time, input1, label="Input 1", color="blue")
+plt.ylim(-0.1, 1.1)
+plt.title("Analog NAND Gate Simulation", fontsize=14)
+plt.ylabel("Input 1 Signal")
+plt.legend()
+plt.grid(True)
+
+# 入力2のプロット
+plt.subplot(3, 1, 2)
+plt.plot(time, input2, label="Input 2", color="green")
+plt.ylim(-0.1, 1.1)
+plt.ylabel("Input 2 Signal")
+plt.legend()
+plt.grid(True)
+
+# NAND出力のプロット
+plt.subplot(3, 1, 3)
+plt.plot(time, output, label="NAND Output", color="red")
+plt.ylim(-0.1, 1.1)
+plt.xlabel("Time (s)")
+plt.ylabel("NAND Output Signal")
+plt.legend()
+plt.grid(True)
+
+# 全体の表示
+plt.tight_layout()
+plt.show()
