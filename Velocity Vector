@@ -1,0 +1,34 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数の設定
+angle_deg = 30  # 角度 (30度)
+speed = 20      # 速度の大きさ (m/s)
+
+# 三角比を用いて速度成分を計算
+angle_rad = np.radians(angle_deg)  # 角度をラジアンに変換
+v_x = speed * np.cos(angle_rad)    # x成分
+v_y = speed * np.sin(angle_rad)    # y成分
+
+# プロットの準備
+plt.figure(figsize=(8, 6))
+plt.quiver(0, 0, v_x, v_y, angles='xy', scale_units='xy', scale=1, color='blue', label="Velocity Vector")
+
+# グラフの範囲設定
+plt.xlim(0, 25)
+plt.ylim(0, 15)
+
+# グリッドとラベル
+plt.grid(True)
+plt.title("Velocity Vector", fontsize=14)
+plt.xlabel("x-component (m/s)", fontsize=12)
+plt.ylabel("y-component (m/s)", fontsize=12)
+plt.legend()
+plt.axhline(0, color='black', linewidth=0.5, linestyle='--')
+plt.axvline(0, color='black', linewidth=0.5, linestyle='--')
+
+# 結果の表示
+plt.show()
+
+# 結果の数値出力
+print(f"Velocity components: v_x = {v_x:.2f} m/s, v_y = {v_y:.2f} m/s")
