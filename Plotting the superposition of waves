@@ -1,0 +1,37 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数の設定
+A = 1.0          # 振幅
+T = 1.0          # 周期 (秒)
+lambda_ = 2.0    # 波長 (メートル)
+v = lambda_ / T  # 波の速度 (メートル/秒)
+d = 1.0          # 位置 d (メートル)
+
+# 空間軸と時間軸の設定
+x = np.linspace(0, 4 * lambda_, 500)  # 空間軸 (0 から 4λ)
+t = 0.5                               # 時刻 (秒)
+
+# 波の計算
+y1 = A * np.cos(2 * np.pi * (t / T - x / lambda_))
+y2 = A * np.cos(2 * np.pi * (t / T + (x - 2 * d) / lambda_))
+y_combined = 2 * A * np.cos(2 * np.pi * (d - x) / lambda_) * np.cos(2 * np.pi * (t / T - d / lambda_))
+
+# プロット
+plt.figure(figsize=(10, 6))
+
+# y1とy2の波
+plt.plot(x, y1, label=r"$y_1 = A\cos 2\pi\left(\frac{t}{T} - \frac{x}{\lambda}\right)$", color="blue")
+plt.plot(x, y2, label=r"$y_2 = A\cos 2\pi\left(\frac{t}{T} + \frac{x - 2d}{\lambda}\right)$", color="green")
+
+# 重ね合わせの波
+plt.plot(x, y_combined, label=r"$y = 2A\cos 2\pi\left(\frac{d - x}{\lambda}\right)\cos 2\pi\left(\frac{t}{T} - \frac{d}{\lambda}\right)$", color="red", linestyle="--")
+
+# プロットの設定
+plt.title("Wave Interference", fontsize=14)
+plt.xlabel("x (m)", fontsize=12)
+plt.ylabel("y (m)", fontsize=12)
+plt.axhline(0, color="black", linewidth=0.5, linestyle="--")
+plt.grid(True)
+plt.legend(fontsize=10)
+plt.show()
