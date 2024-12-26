@@ -1,0 +1,36 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータ設定
+mu_static = 0.6  # 静止摩擦係数
+mu_kinetic = 0.4  # 動摩擦係数
+N = 10  # 法線力 (N)
+F_max = mu_static * N  # 最大摩擦力
+F_kinetic = mu_kinetic * N  # 動摩擦力
+
+# 押す力の範囲
+F_push = np.linspace(0, 20, 500)
+
+# 摩擦力の計算
+F_friction = np.minimum(F_push, F_max)  # 静止摩擦力 (最大まで)
+F_friction[F_push > F_max] = F_kinetic  # 動摩擦力 (最大超えた場合)
+
+# プロット
+plt.figure(figsize=(10, 6))
+
+# 静止摩擦力と動摩擦力のプロット
+plt.plot(F_push, F_friction, label="Friction Force", color="red", linewidth=2)
+plt.axhline(F_max, color="orange", linestyle="--", label="Maximum Friction Force ($f_{max}$)")
+plt.axhline(F_kinetic, color="blue", linestyle="--", label="Kinetic Friction Force ($f_{kinetic}$)")
+
+# ラベルとタイトル
+plt.xlabel("Pushing Force (N)", fontsize=12)
+plt.ylabel("Friction Force (N)", fontsize=12)
+plt.title("Friction Force vs. Pushing Force", fontsize=14)
+
+# グラフの装飾
+plt.axvline(F_max, color="green", linestyle="--", label="Transition Point (Static to Kinetic)")
+plt.text(F_max + 0.5, F_max / 2, "Sliding Begins", color="green", fontsize=10)
+plt.legend()
+plt.grid()
+plt.show()
