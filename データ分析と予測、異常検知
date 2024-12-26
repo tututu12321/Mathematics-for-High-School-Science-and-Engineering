@@ -1,0 +1,68 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.tsa.seasonal import seasonal_decompose
+from sklearn.ensemble import IsolationForest
+from sklearn.linear_model import LinearRegression
+
+# **1. データの生成**
+dates = pd.date_range(start="2023-01-01", periods=365, freq="D")
+data = pd.DataFrame({
+    "Date": dates,
+    "Sales": np.sin(2 * np.pi * dates.dayofyear / 365) * 100 + np.random.normal(0, 10, len(dates)) + 200
+})
+data.set_index("Date", inplace=True)
+
+# **2. データの拡張 (2年分のデータを作成)**
+extended_data = pd.concat([data] * 2)
+extended_data.index = pd.date_range(start="2023-01-01", periods=len(extended_data), freq="D")
+
+# **3. 時系列データの傾向分析 (STL分解)**
+result = seasonal_decompose(extended_data['Sales'], model="additive", period=365)
+result.plot()
+plt.suptitle("STL Decomposition", fontsize=16)
+plt.show()
+
+# **4. 異常検知 (Isolation Forest)**
+isolation_forest = IsolationForest(contamination=0.05, random_state=42)
+extended_data['Anomaly'] = isolation_forest.fit_predict(extended_data[['Sales']])
+
+# 異常値の可視化
+plt.figure(figsize=(10, 6))
+plt.plot(extended_data.index, extended_data['Sales'], label="Sales", color="blue")
+plt.scatter(extended_data.index[extended_data['Anomaly'] == -1], 
+            extended_data['Sales'][extended_data['Anomaly'] == -1], 
+            color="red", label="Anomalies")
+plt.title("Anomaly Detection using Isolation Forest")
+plt.xlabel("Date")
+plt.ylabel("Sales")
+plt.legend()
+plt.show()
+
+# **5. 売上予測 (線形回帰)**
+# 特徴量とターゲットを設定
+extended_data['Day'] = np.arange(len(extended_data))
+X = extended_data[['Day']]
+y = extended_data['Sales']
+
+# データを分割
+train_size = int(0.8 * len(extended_data))
+X_train, X_test = X[:train_size], X[train_size:]
+y_train, y_test = y[:train_size], y[train_size:]
+
+# モデルの学習
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# 売上予測
+predictions = model.predict(X_test)
+
+# 予測結果の可視化
+plt.figure(figsize=(10, 6))
+plt.plot(extended_data.index, extended_data['Sales'], label="Actual Sales", color="blue")
+plt.plot(X_test.index, predictions, label="Predicted Sales", color="orange")
+plt.title("Sales Forecast using Linear Regression")
+plt.xlabel("Date")
+plt.ylabel("Sales")
+plt.legend()
+plt.show()
