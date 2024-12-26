@@ -1,0 +1,59 @@
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+from scipy.fft import fft, fftfreq
+
+# Define parameters
+alpha = 1.0  # Thermal diffusivity
+L = 1.0      # Length of the rod
+nx = 50      # Number of spatial points
+nt = 500     # Number of time steps
+dx = L / (nx - 1)
+dt = 0.001
+
+# Create grid
+x = np.linspace(0, L, nx)
+u0 = np.sin(np.pi * x)  # Initial condition
+
+# Define the finite difference scheme
+def heat_equation(t, u):
+    dudx = np.zeros_like(u)
+    dudx[1:-1] = alpha * (u[2:] - 2 * u[1:-1] + u[:-2]) / dx**2
+    return dudx
+
+# Solve the PDE
+t_span = (0, nt * dt)
+t_eval = np.linspace(0, nt * dt, nt)
+sol = solve_ivp(heat_equation, t_span, u0, t_eval=t_eval, method='RK45')
+
+# Select a specific time snapshot for FFT (e.g., the last time step)
+u_last = sol.y[:, -1]
+
+# Perform FFT
+fft_values = fft(u_last)
+frequencies = fftfreq(nx, dx)
+
+# Only take the positive frequencies
+positive_freqs = frequencies[:nx // 2]
+positive_fft_values = np.abs(fft_values[:nx // 2])
+
+# Plot the original signal at the last time step
+plt.figure(figsize=(8, 6))
+plt.plot(x, u_last, label='Solution at Final Time')
+plt.title("Heat Equation Solution at Final Time")
+plt.xlabel("x")
+plt.ylabel("u(x, t)")
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# Plot the FFT results
+plt.figure(figsize=(8, 6))
+plt.plot(positive_freqs, positive_fft_values, label='FFT of Final Solution')
+plt.title("FFT of Heat Equation Solution")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Amplitude")
+plt.grid(True)
+plt.legend()
+plt.show()
