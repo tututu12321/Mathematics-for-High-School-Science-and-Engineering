@@ -1,0 +1,53 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数定義
+E = 1.0  # 電圧の基準値
+alpha = np.pi / 6  # αの角度
+phi = np.pi / 3  # 位相差
+omega = 2 * np.pi * 50  # 周波数 (50 Hz)
+t = np.linspace(0, 0.04, 1000)  # 時間 (0 ～ 40ms)
+
+# v_oA, v_oB の計算
+def calculate_vo(E, alpha, phi, omega, t, offset):
+    vo = np.zeros_like(t)
+    for k in range(1, 50):  # k=1から50までの高調波を計算
+        factor = (4 * E) / ((2 * k - 1) * np.pi)
+        vo += factor * np.cos(((2 * k - 1) * alpha) / 2) * np.sin((2 * k - 1) * omega * t + offset)
+    return vo
+
+v_oA = calculate_vo(E, alpha, phi, omega, t, -phi / 2)
+v_oB = calculate_vo(E, alpha, phi, omega, t, phi / 2)
+
+# v_1, v_2, v_3 の計算
+V = np.sqrt(2) * E  # 実効値からピーク値
+v_1 = V * np.sin(omega * t)
+v_2 = V * np.sin(omega * t - 2 * np.pi / 3)
+v_3 = V * np.sin(omega * t + 2 * np.pi / 3)
+
+# プロット
+plt.figure(figsize=(12, 8))
+
+# v_oA, v_oB のプロット
+plt.subplot(2, 1, 1)
+plt.plot(t, v_oA, label=r'$v_{oA}$', color='blue')
+plt.plot(t, v_oB, label=r'$v_{oB}$', color='orange')
+plt.title('Output Voltages $v_{oA}$ and $v_{oB}$')
+plt.xlabel('Time (s)')
+plt.ylabel('Voltage (V)')
+plt.legend()
+plt.grid()
+
+# v_1, v_2, v_3 のプロット
+plt.subplot(2, 1, 2)
+plt.plot(t, v_1, label=r'$v_1$', color='red')
+plt.plot(t, v_2, label=r'$v_2$', color='green')
+plt.plot(t, v_3, label=r'$v_3$', color='blue')
+plt.title('Three-Phase Voltages $v_1$, $v_2$, $v_3$')
+plt.xlabel('Time (s)')
+plt.ylabel('Voltage (V)')
+plt.legend()
+plt.grid()
+
+plt.tight_layout()
+plt.show()
