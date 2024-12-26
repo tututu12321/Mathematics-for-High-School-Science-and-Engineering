@@ -1,0 +1,33 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数の設定 (それらしい値を選択)
+m = 5  # 小物体の質量 (kg)
+M = 10  # 台の質量 (kg)
+g = 9.81  # 重力加速度 (m/s^2)
+
+# 角度 θ の範囲 (ラジアン)
+theta = np.linspace(0, np.pi / 2, 500)  # 0 から 90 度まで
+
+# 加速度 a と力 F の計算
+a = (m * g * np.cos(theta) * np.sin(theta)) / (M + m * np.sin(theta)**2)
+F = (M * m * g * np.cos(theta)) / (M + m * np.sin(theta)**2)
+
+# プロット
+plt.figure(figsize=(10, 6))
+
+# 加速度 a のプロット
+plt.plot(theta * 180 / np.pi, a, label="Acceleration (a)", color="blue", linewidth=2)
+
+# 力 F のプロット
+plt.plot(theta * 180 / np.pi, F, label="Force (F)", color="red", linestyle="--", linewidth=2)
+
+# ラベルとタイトル
+plt.xlabel("Angle θ (degrees)", fontsize=12)
+plt.ylabel("Values of a and F", fontsize=12)
+plt.title("Acceleration and Force vs. Angle θ", fontsize=14)
+
+# グラフの装飾
+plt.legend()
+plt.grid()
+plt.show()
