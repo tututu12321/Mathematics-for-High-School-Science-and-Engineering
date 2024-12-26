@@ -1,0 +1,49 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定数の定義
+R = 10  # 抵抗 (Resistance) - Ω
+L = 0.01  # インダクタンス (Inductance) - H
+C = 1e-6  # キャパシタンス (Capacitance) - F
+I0 = 0.1  # 電流の振幅 (Amplitude of Current) - A
+f = 60  # 周波数 (Hz)
+omega = 2 * np.pi * f  # 角周波数 (Angular frequency)
+
+# 時間軸の設定
+t = np.linspace(0, 0.1, 1000)  # 時間 (s), 0から0.1秒まで1000点
+
+# 各電圧の計算
+VR = R * I0 * np.sin(omega * t)  # 抵抗の電圧
+VL = omega * L * I0 * np.sin(omega * t + np.pi / 2)  # インダクタの電圧
+VC = (I0 / (omega * C)) * np.sin(omega * t - np.pi / 2)  # キャパシタの電圧
+
+# 合成電圧の計算
+V = VR + VL + VC
+
+# 時間領域でのプロット
+plt.figure(figsize=(12, 6))
+plt.plot(t, V, label="V(t) (Total Voltage)", color="blue")
+plt.plot(t, VR, label="V_R (Resistor Voltage)", linestyle="--")
+plt.plot(t, VL, label="V_L (Inductor Voltage)", linestyle="--")
+plt.plot(t, VC, label="V_C (Capacitor Voltage)", linestyle="--")
+plt.xlabel("Time (s)")
+plt.ylabel("Voltage (V)")
+plt.title("Voltage Components and Total Voltage Over Time")
+plt.legend()
+plt.grid()
+plt.show()
+
+# FFT の計算
+N = len(t)
+V_fft = np.fft.fft(V)  # FFT
+frequencies = np.fft.fftfreq(N, d=(t[1] - t[0]))  # 周波数軸
+amplitude = np.abs(V_fft) / N  # 振幅を正規化
+
+# 周波数領域でのプロット
+plt.figure(figsize=(12, 6))
+plt.plot(frequencies[:N // 2], amplitude[:N // 2], color="red")  # 正の周波数のみ表示
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Amplitude")
+plt.title("Frequency Spectrum of Voltage Signal")
+plt.grid()
+plt.show()
